@@ -1,4 +1,4 @@
-package jusacco.TP1.punto3;
+﻿package jusacco.TP1.punto3;
 
 public class Mensaje {
 	String from;
@@ -13,6 +13,6 @@ public class Mensaje {
 	
 	@Override
 	public String toString (){
-        return "Mensaje de: "+this.from+"\n Hacia: "+this.to+"\n"+this.msg;
+        return "Mensaje de: "+this.from+"\nHacia: "+this.to+"\n"+this.msg;
     }
 }
