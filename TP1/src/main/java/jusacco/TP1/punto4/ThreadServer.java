@@ -144,6 +144,7 @@ public class ThreadServer implements Runnable{
 						msgCli = "";
 						break;
 					case "leer":
+						levantarMensajes();
 						this.getMensajes(user);
 						this.grabarCambios();
 						msgCli = "";
