@@ -15,7 +15,7 @@ public class ThreadServer implements Runnable{
 	BufferedReader inputChannel;
 	PrintWriter outputChannel;
 	ArrayList<Mensaje> liMensajes;
-	final String ARCHIVO = "c:/archivo.txt";
+	final String ARCHIVO = "c:/archivo1.txt";
 	
 	public ThreadServer (Socket client) {
 		this.client = client;
@@ -36,21 +36,30 @@ public class ThreadServer implements Runnable{
 		return respuesta;
 	}
 	
-	public String getMensajes(String from) throws IOException {
+	public void getMensajes(String from) throws IOException {
 		String respuesta = "";
 		String ack = "";
+		ArrayList<Mensaje> li2 = new ArrayList<>();
+		li2.addAll(liMensajes);
+		Mensaje m = null;
 		for (Mensaje mensaje : liMensajes) {
 			if (mensaje.to.contentEquals(from)) {
-				respuesta += mensaje.toString()+"\n----\n";
+				respuesta = mensaje.toString();
+				this.outputChannel.println(respuesta);
+				this.outputChannel.println("..END");
 				ack = this.inputChannel.readLine();
-				if (ack.contentEquals("recibido"))
-					liMensajes.remove(mensaje);
+				if (ack.contentEquals("recibido")) {
+					m = mensaje;
+					li2.remove(m);
+				}
 			}
 		}
 		if (respuesta.isEmpty()) {
 			respuesta = "No tienes mensajes nuevos\n";
+			this.outputChannel.print(respuesta);
 		}
-		return respuesta;
+		this.outputChannel.println("termine");
+		this.liMensajes = li2;
 	}
 	
 	public void addMensaje(String from, String to, String msg){
@@ -73,9 +82,10 @@ public class ThreadServer implements Runnable{
 		File file = new File(ARCHIVO);
 		FileWriter fw = new FileWriter(file, false);
 		for (Mensaje mensaje : liMensajes) {
-			s = mensaje.from+"-"+mensaje.to+"-"+mensaje.msg+"\r\n.END\r\n";
+			s = mensaje.from+"-"+mensaje.to+"-"+mensaje.msg+"\r\n";
 			fw.write(s);
 		}
+		fw.write(".END\r\n");
 		fw.close();
 	}
 	
@@ -134,8 +144,8 @@ public class ThreadServer implements Runnable{
 						msgCli = "";
 						break;
 					case "leer":
-						this.outputChannel.print(getMensajes(user));
-						this.outputChannel.println(".END");
+						this.getMensajes(user);
+						this.grabarCambios();
 						msgCli = "";
 						break;
 					case "salir":

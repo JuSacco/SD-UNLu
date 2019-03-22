@@ -30,7 +30,7 @@ public class Client {
 			boolean salir = false;
 			while (!salir) {
 				System.out.println("Ingrese que desea hacer: ");
-				System.out.println("1- Enviar mensaje(una vez leidos, seran borrados)\n2- Ver casilla de mensajes\n3- Salir ");
+				System.out.println("1- Enviar mensaje\n2- Ver casilla de mensajes(una vez leidos, seran borrados)\n3- Salir ");
 				opt = sc.nextInt();
 				switch(opt) {
 					case 1: 
@@ -41,7 +41,7 @@ public class Client {
 						break;
 					case 3: 
 						salir = true;
-						outputChannel.println("enviar");
+						outputChannel.println("salir");
 						break;
 				}
 			}
@@ -58,10 +58,22 @@ public class Client {
 		outputChannel.println("leer");
 		String rta = "";
 		String cadena = "";
-		while(!rta.contentEquals(".END")) {
+		boolean termine = false;
+		while(!termine) {
 			rta = this.inputChannel.readLine();
-			if(!rta.contentEquals(".END"))
-				cadena += rta+"\n";
+			if(!rta.contentEquals("..END")) {
+				if(rta.contentEquals("termine")) {
+					termine = true;
+				}else{
+					cadena += rta+"\n";
+				}
+			}else{
+				cadena += "\n---\n";
+				outputChannel.println("recibido");
+				if(rta.contentEquals("termine")) {
+					termine = true;
+				}
+			}
 		}
 		System.out.println(cadena);
 	}
