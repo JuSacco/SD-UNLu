@@ -8,20 +8,15 @@ import java.rmi.server.UnicastRemoteObject;
 public class ServidorRMI {
 	public static void main(String[] args) {
 		try {	
-			Clima c1 = new Clima("London");
-			Clima c2 = new Clima("Buenos Aires");
-			Clima c3 = new Clima("Miami");
-			System.out.println("Servidores de clima instanciados");
+			Clima c1 = new Clima("Buenos Aires");
 			
 			Registry serverRmiRegistry = LocateRegistry.createRegistry(9000);
 			System.out.println("Servidor RMI levantado en el puerto 9000");
 			
 			IRemota serverStub = (IRemota) UnicastRemoteObject.exportObject(c1, 8000);
-			serverStub = (IRemota) UnicastRemoteObject.exportObject(c2, 8000);
-			serverStub = (IRemota) UnicastRemoteObject.exportObject(c3, 8000);
 			System.out.println("Objetos correctamente publicados a traves de IRemota");
 			
-			serverRmiRegistry.rebind("getClima", serverStub);
+			serverRmiRegistry.rebind("infoClima", serverStub);
 			System.out.println("Se ha bindeado el nombre con el servicio");
 			
 		} catch (RemoteException e) {
