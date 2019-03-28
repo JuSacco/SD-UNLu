@@ -29,7 +29,7 @@ public class Server {
 					this.outputChannel = new PrintWriter (this.cs.getOutputStream(), true);
 					this.msg = this.inputChannel.readLine();
 					System.out.println("Cliente: "+this.msg);
-					this.msg+=" (devuelto por el server)";
+					this.msg+=" (respuesta del servidor)";
 					this.outputChannel.println(msg);
 				}
 			}catch (IOException e) {

@@ -39,9 +39,9 @@ public class Cliente {
 			resultado = cliStub.sumarMal(v1, v2);
 			System.out.println("Introduzca un error en su código que modifique los vectores recibidos por parámetro.");
 			System.out.println("Resultado de restar mal: "+resultado[0]+","+resultado[1]+","+resultado[2]);
-			System.out.println("¿Qué impacto se genera?\r\n"+"¿Qué conclusión saca sobre la forma de pasaje de parámetros en RMI? ");
+			System.out.println("\n¿Qué impacto se genera?\r\n"+"¿Qué conclusión saca sobre la forma de pasaje de parámetros en RMI? ");
 			System.out.println("-En el servidor se modifico v1 para que tenga todos 0, pero como el vector fue pasado \n"
-					+ "por valor y no referencia no se modifica del lado del cliente. Si se quisiese modificar, habria que devolver"
+					+ "por valor y no referencia no se modifica del lado del cliente. Si se quisiese modificar, habria que devolver\n"
 					+ "el vector modificado y asignarlo al vector original del lado del cliente.");
 			sc.close();
 		} catch (Exception e) {

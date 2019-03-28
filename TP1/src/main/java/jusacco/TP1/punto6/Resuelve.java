@@ -32,7 +32,7 @@ public class Resuelve implements IRemota {
 		v1[0] = 0;
 		v1[1] = 0;
 		v1[2] = 0;
-		System.out.println("El vector 1 es:\n ");
+		System.out.println("El vector 1 es: ");
 		for (int i = 0;i<3;i++){
 			System.out.println("V1["+i+"]: ");
 		}
