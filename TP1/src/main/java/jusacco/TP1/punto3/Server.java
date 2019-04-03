@@ -17,10 +17,8 @@ public class Server {
 			this.port = port;
 			try {
 				this.ss = new ServerSocket (this.port);
-				System.out.println("Aclaracion: Debe existir un archivo ('C:/arhivo.txt' por defecto) para el correcto funcionamiento\n"
-						+ "El parametro puede ser modificado en la constante ARCHIVO de ThreadServer\n");
-				System.out.println("Servidor corriendo en el puerto: "+port);
 				int counter = 0;
+				System.out.println("Servidor corriendo en el puerto: "+port);
 				while (true) {
 					this.cs = ss.accept();
 					counter++;

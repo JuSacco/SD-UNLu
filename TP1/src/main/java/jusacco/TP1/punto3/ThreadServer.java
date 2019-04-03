@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class ThreadServer implements Runnable{
@@ -15,7 +16,7 @@ public class ThreadServer implements Runnable{
 	BufferedReader inputChannel;
 	PrintWriter outputChannel;
 	ArrayList<Mensaje> liMensajes;
-	final String ARCHIVO = "c:/archivo.txt";
+	final String ARCHIVO = "./archivo.txt";
 	
 	public ThreadServer (Socket client) {
 		this.client = client;
@@ -75,14 +76,24 @@ public class ThreadServer implements Runnable{
 	}
 	
 	public void levantarMensajes(){
-		try (BufferedReader br = new BufferedReader(new FileReader(ARCHIVO))) {
-			String s;
-			while ((s = br.readLine()) != null) {
-				if(!s.contentEquals(".END"))
-					this.liMensajes.add(splitMsg(s));
+		File tempFile = new File(ARCHIVO);
+		if (tempFile.exists()) {
+			try (BufferedReader br = new BufferedReader(new FileReader(ARCHIVO))) {
+				String s;
+				while ((s = br.readLine()) != null) {
+					if(!s.contentEquals(".END") || !s.contentEquals(""))
+						this.liMensajes.add(splitMsg(s));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		}else {
+			try {
+				System.out.println("El archivo de mensajes no existe...\nCreandolo en "+ tempFile.getCanonicalPath());
+				tempFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

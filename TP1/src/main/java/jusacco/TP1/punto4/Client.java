@@ -27,12 +27,19 @@ public class Client {
 			this.user = sc.nextLine();
 			outputChannel.println(this.user);
 			int opt;
+			String seleccion;
 			boolean salir = false;
 			while (!salir) {
 				System.out.println("Ingrese que desea hacer: ");
 				System.out.println("1- Enviar mensaje\n2- Ver casilla de mensajes(una vez leidos, seran borrados)\n3- Salir ");
-				opt = sc.nextInt();
-				switch(opt) {
+				seleccion = sc.nextLine();
+				while(!seleccion.equals("1") && !seleccion.equals("2") && !seleccion.equals("3")) {
+					System.out.println("Error en la seleccion de opcion.\nIngrese que desea hacer:\n");
+					System.out.println("1- Enviar mensaje\n2- Ver casilla de mensajes\n3- Salir ");
+					seleccion = sc.nextLine();
+				}
+				opt = Integer.parseInt(seleccion);
+					switch(opt) {
 					case 1: 
 						enviarMensaje();
 						break;
