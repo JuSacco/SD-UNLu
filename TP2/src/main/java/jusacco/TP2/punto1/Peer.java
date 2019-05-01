@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class Peer {
 			//STEP 1: Cargo mis archivos disponibles
 			this.liArchivos = getArchivos(directory);
 			//STEP 2: Creo una nueva conexion socket 
+			log.debug("Conectando a:"+masterIp+":"+masterPort);
 			this.connMaestro = new Socket(masterIp,masterPort);
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -59,14 +61,23 @@ public class Peer {
 	
 	private void loadConfig() {
 		File tempFile = new File(this.CONF_PATH);
-		String[] primaryMaster;
+		ArrayList<String> primaryMaster = new ArrayList<String>();
 		if (tempFile.exists()) {
 			try (BufferedReader br = new BufferedReader(new FileReader(this.CONF_PATH))) {
 				String s;
+				String ip;
+				int port;
 				while ((s = br.readLine()) != null) {
-					primaryMaster = s.split(":");
-					this.masterIp = primaryMaster[0];
-					this.masterPort = Integer.valueOf(primaryMaster[1]);
+					primaryMaster.add(s);
+				}
+				for(String str : primaryMaster) {
+					String[] strSplit = str.split(":");
+					ip = strSplit[0];
+					port = Integer.valueOf(strSplit[1]);
+					if (available(ip, port)) {
+						this.masterIp = ip;
+						this.masterPort = port;
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -76,13 +87,23 @@ public class Peer {
 		}		
 	}
 	
+	private boolean available(String ip,int port) {
+	    try (Socket ignored = new Socket(ip, port)) {
+			PrintWriter outputChannel = new PrintWriter (ignored.getOutputStream(), true);
+			outputChannel.println("imClientPinging");
+			ignored.close();
+	        return true;
+	    } catch (IOException ignored) {
+	        return false;
+	    }
+	}
+	
 	private ArrayList<Archivo> getArchivos(String directory) throws FileNotFoundException {
 		String[] res = getFiles(directory);
 		ArrayList<Archivo> liArchivo = new ArrayList<Archivo>();
 		if ( res != null ) {
             int size = res.length;
-            for ( int i = 0; i < size; i ++ ) {
-                System.out.println( res[ i ] );
+            for ( int i = 0; i < size; i ++ ) {            	
                 if (res[i] != null) {
                 	Archivo a = new Archivo(res[ i ]);
                 	liArchivo.add(a);
@@ -92,9 +113,9 @@ public class Peer {
 		return liArchivo;
 	}
 
-    public String[] getFiles( String dir_path ) {
+    public String[] getFiles( String path ) {
         String[] arr_res = null;
-        File f = new File( dir_path );
+        File f = new File( path );
         this.log.info(f.getAbsolutePath());
         if ( f.isDirectory( )) {
             List<String> res   = new ArrayList<>();
@@ -105,8 +126,10 @@ public class Peer {
                 res.add( arr_content[ i ].getName());
             }
             arr_res = res.toArray( new String[ 0 ] );
-        } else
-           log.error("Path Invalido");
+        } else {
+        	log.info("No existe la carpeta: "+path+" creandola...");
+        	f.mkdir();        	
+        }
         return arr_res;
     }
 

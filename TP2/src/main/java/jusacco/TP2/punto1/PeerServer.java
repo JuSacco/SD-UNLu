@@ -24,22 +24,23 @@ public class PeerServer implements Runnable{
 
 
 	@Override
+	@SuppressWarnings("resource")
 	public void run() {
 		try {
 			ServerSocket ss = new ServerSocket (this.peerPort);
-			log.info("Server Peer en puerto: "+peerPort);
+			log.info("[SERVER PEER-"+this.peerPort+"]: ON");
 			int counter = 0;
 			while (true) {
 				Socket client = ss.accept();
 				counter++;
-				log.info("Server Peer conexion con el cliente nro: "+counter);
+				log.info("[SERVER PEER-"+this.peerPort+"] Establecio conexion con el cliente nro: "+counter);
+				log.info("[SERVER PEER-"+this.peerPort+"] Info Cliente: "+client.getInetAddress()+":"+client.getPort());
 				//Thread: Serve petition
 				PeerServerWorker worker = new PeerServerWorker (this.liArchivos,client, directory);
 				Thread tWorker= new Thread (worker);
 				tWorker.start();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println(" Socket on port "+peerPort+" is used ");
 		}
 	}

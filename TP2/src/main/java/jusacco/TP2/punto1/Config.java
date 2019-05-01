@@ -55,7 +55,7 @@ public class Config {
 				tempFile.createNewFile();
 				log.info("Registrando el nodo en configuraciones.");
 				fw = new FileWriter(tempFile, true);
-				fw.write(sNodo);
+				fw.write(sNodo+"\r\n");
 				fw.close();
 			} catch (IOException e) {
 				e.printStackTrace();

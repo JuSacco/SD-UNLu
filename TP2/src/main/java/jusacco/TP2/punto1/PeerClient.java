@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -32,7 +31,6 @@ public class PeerClient implements Runnable {
 		this.directory = directory;
 		log.info("Cargando mis archivos para compartir...");
 		this.liArchivos = liArchivos;
-		givePeerData();
 	}
 	private void menuDescargar() {
 		ArrayList<String> response;
@@ -46,7 +44,6 @@ public class PeerClient implements Runnable {
 			String[] parced = null;
 			System.out.println("Seleccione el nro indice de el que desea descargar o X para salir");
 			for (String res : response) {
-				System.out.println("res:"+res);
 				parced = res.split("//@t//");
 				System.out.println(index+". "+parced[1]+"(on "+parced[0]+")");
 				index++;
@@ -87,7 +84,6 @@ public class PeerClient implements Runnable {
 			System.out.println("========================\n"
 					+ "1.Buscar archivo\n"
 					+ "2.Ver mis archivos\n"
-					+ "3.Agregar archivo\n"
 					+ "\n"
 					+ "4.Salir\n"
 					+ "========================");
@@ -95,18 +91,17 @@ public class PeerClient implements Runnable {
 			switch (opt) {
 			case "1": 
 				menuDescargar();
-				givePeerData();
 				break;
 			case "2":
 					break;
 			case "3":
-					//addArchivo()
 				break;
 			case "4": 
 				salir = true;
 				try {
 					PrintWriter outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
 					outputChannel.println("cerrarConn");
+					this.connMaestro.close();
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -119,7 +114,7 @@ public class PeerClient implements Runnable {
 		}
 	}
 
-	//TODO CADA VEZ QUE GUARDO UN ARCHIVO LO DEBO INFORMAR A EL NODO MAESTRO.
+	//TODO CADA VEZ QUE GUARDO UN ARCHIVO LO DEBO INFORMAR A EL NODO MAESTRO. -> NEED TEST 
 	
 	private void guardar(Archivo a) {
 		this.liArchivos.add(a);
@@ -150,14 +145,7 @@ public class PeerClient implements Runnable {
 				e1.printStackTrace();
 			}
 		}
-		PrintWriter outputChannel;
-		try {
-			outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
-			outputChannel.println("actualizarMaster");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		givePeerData();
 	}
 
 	private Archivo descargar(String[]connData,String archivo) {
@@ -206,8 +194,6 @@ public class PeerClient implements Runnable {
 			log.info("Cliente conectado al master.Buscando archivos...");
 			BufferedReader inputChannel = new BufferedReader (new InputStreamReader (this.connMaestro.getInputStream()));
 			PrintWriter outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
-
-			outputChannel.flush();
 			outputChannel.println("buscar="+query);
 			String msgFromServer = null;
 			while(!termino) {
@@ -219,7 +205,6 @@ public class PeerClient implements Runnable {
 					}else {
 						if(msgFromServer.contains("//@t//"))
 						response.add(msgFromServer);
-						log.info("Server responde: "+msgFromServer);
 					}
 				}else {
 					termino = true;
@@ -238,15 +223,14 @@ public class PeerClient implements Runnable {
 
 	private void givePeerData() {
 		try {
-			System.out.println("Socket info: "+this.connMaestro);
-			log.info("Cliente conectado al master. Enviando archivos disponibles");
+			log.info("[PEER-"+this.peerServerPort+"] Cliente conectado al master. Enviando archivos disponibles");
 			PrintWriter outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
 			if(this.liArchivos.isEmpty()) {
 				outputChannel.println("serverPortOn="+this.peerServerPort);
 				outputChannel.println(".END");
 			}else{
 				outputChannel.println("serverPortOn="+this.peerServerPort);
-				outputChannel.flush();
+				outputChannel.println("serverPortOn="+this.peerServerPort);
 				for (Archivo archivo : this.liArchivos) {
 					outputChannel.println(archivo.getName());
 				}
@@ -262,6 +246,7 @@ public class PeerClient implements Runnable {
 
 	@Override
 	public void run() {
+		givePeerData();
 		menu();
 	}
 	
