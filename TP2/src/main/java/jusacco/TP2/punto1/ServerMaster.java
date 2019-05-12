@@ -4,10 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +23,17 @@ public class ServerMaster {
 		ArrayList<String[]> otherMasters;
 		ArrayList<String[]> connMasters;
 		ArrayList<MasterIndex> peerData;
+		Map<String, String> mapPeer;
 		private final Logger log = LoggerFactory.getLogger(Config.class);
 
+		@SuppressWarnings("resource")
 		public ServerMaster (String ip,int port) {
 			this.port = port;
 			this.ip = ip;
 			this.otherMasters = new ArrayList<String[]>();
 			this.connMasters = new ArrayList<String[]>();
 			this.peerData = new ArrayList<MasterIndex>();
+			this.mapPeer = new HashMap<String,String>();
 			registrarConfig(this.ip,this.port);
 			try {
 				ServerSocket ss = new ServerSocket (this.port);
@@ -49,7 +56,6 @@ public class ServerMaster {
 					Socket client = ss.accept();
 					BufferedReader inputChannel = new BufferedReader (new InputStreamReader (client.getInputStream()));
 					String msg = inputChannel.readLine();
-					log.debug(msg);
 					if(msg.contains("imMaster")) {
 						String[] strPort = msg.split(":");
 						log.info("[SERVER MASTER-"+port+"]: Me pingueo "+client.getInetAddress().getHostAddress()+" Corriendo en "+strPort[1]);
@@ -61,35 +67,85 @@ public class ServerMaster {
 							newServer[0] = newIp;
 							newServer[1] = newPort;
 							this.connMasters.add(newServer);
-							client.close();
 						}
+						log.info("[SERVER MASTER-"+port+"]: Recibiendo sus archivos...");
+						receiveMasterIndex(client);
+						Thread.sleep(200);
+						sendMasterIndex(client);
+						client.close();
 					}
 					if(msg.contains("imClientPinging")){
 						client.close();
 					}
-					if(msg.contains("actualizarMaster")) {
+					if(msg.contains("actualizarWorker")){
+						sendMasterIndex(client);
+						client.close();
+					}
+					if(msg.contains("bajaPeer")){
+						erasePeer(client);
+						client.close();
+					}
+					if(msg.contains("actualizarServerMaster")) {
 						String [] m = msg.split("=");
 						m = m[1].split(":");
 						actualizarByObj(m[0], m[1], client);
 						client.close();
 					}
-					if(msg.contains("serverPortOn=")) {
+					//Mensaje para añadir,actualizar peers  +  lanzar un master para atender sus peticiones
+					if(msg.contains("peerServerPortOn=")) {
 						String[] strParced = msg.split("=");
 						counter++;
 						log.info("[SERVER MASTER-"+port+"]: Conexion con el cliente nro: "+counter);
 						log.info("[SERVER MASTER-"+port+"]: Info Cliente: "+client.getInetAddress()+":"+client.getPort());
 						//Pedir informacion y registrarlo.
 						requestClientData(client,strParced[1]);
-						String cli = client.getInetAddress().getHostName()+":"+strParced[1];
-						this.peerData.add(new MasterIndex(cli, null));
 						// THREAD
 						Master m = new Master (ip,this.port,client,this.peerData,this.connMasters);
 						Thread tMaster = new Thread (m);
 						tMaster.start();	
 					}
 				}
-			} catch (IOException e) {
+			} catch (IOException | InterruptedException e) {
 				log.info("[SERVER MASTER-"+port+"]: Socket on port "+port+" is used ");
+			}
+		}
+
+		private void erasePeer(Socket client) {
+			String toErase;
+			Map<String, String> aux = new HashMap<String, String>(this.mapPeer);
+			try {
+				BufferedReader inputChannel = new BufferedReader (new InputStreamReader (client.getInputStream()));
+				toErase = inputChannel.readLine();
+				if(toErase != null) {
+					while(eraseByValue(aux, toErase) != null)
+					this.mapPeer = new HashMap<>(aux);
+					this.hashToMasterIndex();
+					//Debería de avisarle a otros masters
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		private void sendMasterIndex(Socket client) {
+			try {
+				ArrayList<MasterIndex> toSend;
+				ObjectOutputStream os = new ObjectOutputStream(client.getOutputStream());
+				toSend = this.peerData;
+				os.writeObject(toSend);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	     
+		}
+		@SuppressWarnings("unchecked")
+		private void receiveMasterIndex(Socket client) {
+			try {
+				ArrayList<MasterIndex> returnMessage = null;
+				ObjectInputStream is = new ObjectInputStream(client.getInputStream());
+				returnMessage = (ArrayList<MasterIndex>) is.readObject();
+				updByMasterIndex(returnMessage);						
+			} catch (Exception e) {
+				
 			}
 		}
 
@@ -97,26 +153,34 @@ public class ServerMaster {
 			Config c = new Config("./config.txt");
 			this.otherMasters = c.doConfig(ip, port);
 		}
+		
 		public void addPeer(String peer, ArrayList<Archivo> peerSharedData) {
-			boolean esta = false;
-			for(MasterIndex m : this.peerData) {
-				if(m.owner.contentEquals(peer)) {
-					log.debug("Ya tenia agregado el peer. Agregando la lista.");
-					m.liArchivo = peerSharedData;
-					esta = true;
+			synchronized (this.peerData) {
+				boolean esta = false;
+				for(MasterIndex m : this.peerData) {
+					if(m.getOwner().contentEquals(peer)) {
+						log.info("[SERVER MASTER-"+port+"]:Ya tenia agregado el peer. Agregando la lista.");
+						m.setLiArchivo(peerSharedData);
+						esta = true;
+					}
 				}
+				if(!esta)
+					this.peerData.add(new MasterIndex(peer,peerSharedData));
 			}
-			if(!esta)
-				this.peerData.add(new MasterIndex(peer,peerSharedData));
 		}
 		
 		private boolean available(String ip,int port) {
 		    try (Socket ignored = new Socket(ip, port)) {
 				PrintWriter outputChannel = new PrintWriter (ignored.getOutputStream(), true);
 				outputChannel.println("imMaster:"+this.port);
+				Thread.sleep(200);
+				sendMasterIndex(ignored);
+				Thread.sleep(200);
+				receiveMasterIndex(ignored);
+				
 				ignored.close();
 		        return true;
-		    } catch (IOException ignored) {
+		    } catch (IOException | InterruptedException ignored) {
 		        return false;
 		    }
 		}
@@ -128,27 +192,14 @@ public class ServerMaster {
 				String msg;
 				boolean salir = false;
 				String data = client.getInetAddress().getHostName()+":"+peerPort;
-				log.debug("[SERVER MASTER-"+port+"]: RequestClientData(): Info Cliente: "+data);
 				while(!salir){
 					if((msg = inputChannel.readLine()) != null) {
 						if(!msg.contentEquals(".END")) {
+							this.mapPeer.put(msg,data);
 							store.add(new Archivo(msg));
 						}else {
 							salir = true;
 							addPeer(data,store);
-							log.debug("[SERVER MASTER-"+port+"]: requestClientData(end). Info Sv Peer: "+data);
-							log.debug("[SERVER MASTER-"+port+"]: Mis peer y sus archivos:");
-							for (MasterIndex m : this.peerData) {
-								log.debug("[SERVER MASTER-"+this.port+"]: Owner: "+m.owner);
-								if(m.liArchivo != null) {
-									for (Archivo ma : m.liArchivo) {
-										log.debug("[SERVER MASTER-"+this.port+"]: \tArchivo: "+ma.getName());
-									}
-								}else {
-									//Se borrara el reg? 
-									m = null;
-								}
-							}
 						}
 					}
 				}
@@ -157,58 +208,28 @@ public class ServerMaster {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		private void actualizarByObj(String ip, String port, Socket master) {
 			try {
 				BufferedReader inputChannel = new BufferedReader (new InputStreamReader (master.getInputStream()));
-	//			PrintReader outputChannel = new PrintWriter (master.getOutputStream(), true);
-				ArrayList<Archivo> store = new ArrayList<Archivo>();
-				String data = master.getInetAddress().getHostName()+":";
-				log.info("[SERVER MASTER-"+this.port+"]: RequestClientData(): Info Cliente: "+master.getInetAddress().getHostName()+":"+master.getPort());
+				log.info("[SERVER MASTER-"+this.port+"]: actualizarByObj() from "+master.getInetAddress().getHostName()+":"+master.getPort());
 				String msgFromServer;
 				boolean salir = false;
 				while(!salir) {
 					msgFromServer = inputChannel.readLine();
-					log.debug("msg: "+msgFromServer);
 					if(msgFromServer.contains("sending")){
 						try {
-							ArrayList<MasterIndex> returnMessage = null;
-							ObjectInputStream is = new ObjectInputStream(master.getInputStream());
-							log.debug("[SERVER MASTER-"+this.port+"]: ObjectInputStream : "+is.toString());
-							returnMessage = (ArrayList<MasterIndex>) is.readObject();
-							
-							log.info("[SERVER MASTER-"+this.port+"]: Recibiendo contenido actualizado");
-							
-							//DEBUG ANTES
-							log.debug("[SERVER MASTER-"+this.port+"]: Mis archivos antes de actualizar:");
-							for (MasterIndex m : this.peerData) {
-								log.debug("[SERVER MASTER-"+this.port+"]: Owner: "+m.owner);
-								for (Archivo ma : m.liArchivo) {
-									log.debug("[SERVER MASTER-"+this.port+"]: \t Archivo: "+ma.getName());
-								}
+							synchronized (this.peerData) {
+								ArrayList<MasterIndex> returnMessage = null;
+								ObjectInputStream is = new ObjectInputStream(master.getInputStream());
+								returnMessage = (ArrayList<MasterIndex>) is.readObject();
+								log.info("[SERVER MASTER-"+this.port+"]: Recibiendo contenido actualizado de"+master.getInetAddress().getHostAddress()+":"+master.getPort());
+								//Hasheo por nombre de archivo + me actualizo mi lista a partir del hash 
+								updByMasterIndex(returnMessage);							
+								salir = true;
 							}
 							
-							for(MasterIndex mi : returnMessage){
-								for(MasterIndex myMi : this.peerData) {
-									if(mi.owner.contentEquals(myMi.owner)) {
-										myMi.liArchivo.removeAll(mi.liArchivo);
-										myMi.liArchivo.addAll(mi.liArchivo);
-									}
-								}
-							}
-							this.peerData = returnMessage;
-							
-							//DEBUG DESPUES
-							log.debug("[SERVER MASTER-"+this.port+"]: Mis archivos despues de actualizar:");
-							for (MasterIndex m : this.peerData) {
-								log.debug("[SERVER MASTER-"+this.port+"]: Owner: "+m.owner);
-								for (Archivo ma : m.liArchivo) {
-									log.debug("[SERVER MASTER-"+this.port+"]: \t Archivo: "+ma.getName());
-								}
-							}
-							salir = true;
-						} catch (ClassNotFoundException e) {
-							e.printStackTrace();
-						} catch (NumberFormatException | IOException e) {
+						} catch (ClassNotFoundException | NumberFormatException | IOException e) {
 							e.printStackTrace();
 						}
 					}
@@ -216,6 +237,58 @@ public class ServerMaster {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}	
+		}
+		
+		private void updByMasterIndex(ArrayList<MasterIndex> returnMessage) {
+			for(MasterIndex mi : returnMessage){
+				for(Archivo a : mi.getLiArchivo()) {
+					this.mapPeer.put(a.getName(),mi.getOwner());
+				}
+			}
+			this.hashToMasterIndex();
+			
+		}
+		
+		private void hashToMasterIndex() {
+	        Collection<String> values = this.mapPeer.values();
+	        ArrayList<String> listOfValues = new ArrayList<String>(values);
+			ArrayList<MasterIndex> result = new ArrayList<MasterIndex>();
+			Map<String, String> auxMap = new HashMap<>(this.mapPeer);
+	        
+	        for(String value : listOfValues) {
+	        	String arch;
+	        	ArrayList<Archivo> liArchivo = new ArrayList<Archivo>();
+	        	while((arch = getKey(auxMap, value)) != null) {
+	        		liArchivo.add(new Archivo(arch));
+	        	}
+	        	if(liArchivo.size()>0)
+	        		result.add(new MasterIndex(value,liArchivo));
+	        }
+			synchronized (this.peerData) {
+				this.peerData = new ArrayList<MasterIndex>(result);
+			}
+	    }    
+
+		//Guarda que borra (usar var aux)
+		public String getKey(Map<String, String> map, String value) {
+			for (Map.Entry<String, String> entry : map.entrySet()) {
+				if (value.equals(entry.getValue())) {
+					map.remove(entry.getKey());
+					return entry.getKey();
+				}
+			}
+			return null;
+		}
+		
+		//Borrar todos las entradas dado un valor
+		public String eraseByValue(Map<String, String> map, String value) {
+			for (Map.Entry<String, String> entry : map.entrySet()) {
+				if (value.equals(entry.getValue())) {
+					map.remove(entry.getKey());
+					return entry.getKey();
+				}
+			}
+			return null;
 		}
 		
 		public static void main(int args) {

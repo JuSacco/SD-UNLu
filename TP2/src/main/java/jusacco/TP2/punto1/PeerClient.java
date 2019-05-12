@@ -2,7 +2,6 @@ package jusacco.TP2.punto1;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +28,7 @@ public class PeerClient implements Runnable {
 		this.connMaestro = connMaestro;
 		this.peerServerPort = peerServerPort;
 		this.directory = directory;
-		log.info("Cargando mis archivos para compartir...");
+		log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Cargando mis archivos para compartir...");
 		this.liArchivos = liArchivos;
 	}
 	private void menuDescargar() {
@@ -39,6 +38,10 @@ public class PeerClient implements Runnable {
 		boolean termino = false;
 		System.out.println("Buscar: ");
 		read = sc.nextLine();
+		while(read.isEmpty()) {
+			System.out.println("Error!\nDebe ingresar al menos un caracter\nBuscar:");
+			read = sc.nextLine();
+		}
 		response = buscar(read);
 		if (response != null) {
 			String[] parced = null;
@@ -49,12 +52,11 @@ public class PeerClient implements Runnable {
 				index++;
 				parced = null;
 			}
-			index=0;
 			System.out.println("Ingrese el indice de el arhivo a descargar: ");
 			read = sc.nextLine();
 			while(!termino) {
 				if(read.matches("\\d+")){
-					if ((Integer.valueOf(read) >= 0)&&(Integer.valueOf(read) <= response.size())){
+					if ((Integer.valueOf(read) >= 0)&&(Integer.valueOf(read) < index)){
 						termino = true;
 						index = 0;
 						String sel = response.get(Integer.valueOf(read));
@@ -62,7 +64,9 @@ public class PeerClient implements Runnable {
 						Archivo a = descargar(parced[0].split(":"), parced[1]);	
 						log.info("Prueba de que funciono: "+a.getName()+"\nContent: "+a.getContent());
 						guardar(a);
-
+					}else {
+						System.out.println("Error!\nIngrese un numero valido o X para salir:");
+						read = sc.nextLine();
 					}
 				
 				}else {
@@ -92,55 +96,45 @@ public class PeerClient implements Runnable {
 			case "1": 
 				menuDescargar();
 				break;
-			case "2":
-					break;
-			case "3":
+			case "2": 
+				verMisArchivos();
 				break;
 			case "4": 
 				salir = true;
 				try {
 					PrintWriter outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
-					outputChannel.println("cerrarConn");
+					outputChannel.println("cerrarConn="+this.peerServerPort);
 					this.connMaestro.close();
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			
-			break;
+				break;
 			default: System.out.println("Opcion invalida.");
 			}
-		}
+		}		
 	}
 
-	//TODO CADA VEZ QUE GUARDO UN ARCHIVO LO DEBO INFORMAR A EL NODO MAESTRO. -> NEED TEST 
+	
+	private void verMisArchivos() {
+		for(Archivo a  : this.liArchivos) {
+			System.out.println(this.liArchivos.indexOf(a)+". "+a.getName());
+		}
+	}
 	
 	private void guardar(Archivo a) {
-		this.liArchivos.add(a);
 		File file = new File(this.directory+"/"+a.name);
 		if(!file.exists()) {
 			try (FileOutputStream stream = new FileOutputStream(this.directory+"/"+a.name)) {
-			    try {
-					stream.write(a.getContent());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
+				stream.write(a.getContent());
+				this.liArchivos.add(a);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}else {
-			log.error("Ya existe un archivo con ese nombre. Renombrando...");
+			log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Ya existe un archivo con ese nombre. Renombrando...");
 			try (FileOutputStream stream = new FileOutputStream(this.directory+"/"+"Copy "+a.name)) {
-			    try {
-					stream.write(a.getContent());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
+				stream.write(a.getContent());
+				this.liArchivos.add(new Archivo("Copy "+a.getName()));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -151,22 +145,22 @@ public class PeerClient implements Runnable {
 	private Archivo descargar(String[]connData,String archivo) {
 		try {
 			Socket s = new Socket (connData[0], Integer.valueOf(connData[1]));
-			log.info("Estableciendo conexion con: "+connData[0]+":"+connData[1]);
+			log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Estableciendo conexion con: "+connData[0]+":"+connData[1]);
 			BufferedReader inputChannel = new BufferedReader (new InputStreamReader (s.getInputStream()));
 			PrintWriter outputChannel = new PrintWriter (s.getOutputStream(), true);
 
-			log.info("Conexion establecida. Enviando peticion de descarga de: "+archivo);
+			log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Conexion establecida. Enviando peticion de descarga de: "+archivo);
 			outputChannel.println("descargar="+archivo);
 			String msgFromServer= inputChannel.readLine();
 			if(msgFromServer.contains("error")) {
-				log.info("Algo salió mal. No se pudo descargar");
+				log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Algo salió mal. No se pudo descargar");
 			    s.close();
 			}else if(msgFromServer.contains("sending")){
 				try {
 				    Archivo returnMessage = null;
 					ObjectInputStream is = new ObjectInputStream(s.getInputStream());
 					returnMessage = (Archivo) is.readObject();
-				    log.info("Recibiendo contenido");
+					log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Recibiendo contenido...");
 				    System.out.println("Archivo que descargue es:" + returnMessage.getName());
 				    is.close();
 				    return returnMessage;
@@ -174,11 +168,9 @@ public class PeerClient implements Runnable {
 					e.printStackTrace();
 				}
 			}else {
-				log.info("Algo salió realmente mal.");
+				log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Algo salió realmente mal.");
 			    s.close();
 			}				
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -189,7 +181,7 @@ public class PeerClient implements Runnable {
 		ArrayList<String> response = new ArrayList<String>();
 		boolean termino = false;
 		try {
-			log.info("Cliente conectado al master.Buscando archivos...");
+			log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Cliente conectado al master.Buscando archivos...");
 			BufferedReader inputChannel = new BufferedReader (new InputStreamReader (this.connMaestro.getInputStream()));
 			PrintWriter outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
 			outputChannel.println("buscar="+query);
@@ -197,7 +189,7 @@ public class PeerClient implements Runnable {
 			while(!termino) {
 				if((msgFromServer = inputChannel.readLine()) != null && !msgFromServer.contentEquals(".END")) {
 					if (msgFromServer.contentEquals("no existe") || response == null) {
-						log.info("La busqueda '"+query+"' no produjo resultados");
+						log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: La busqueda '"+query+"' no produjo resultados");
 						termino = true;
 						return null;
 					}else {
@@ -209,10 +201,10 @@ public class PeerClient implements Runnable {
 					return response;
 				}
 			}				
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Se perdio la conexion con el servidor.");
+			log.error("Porfavor intente mas tarde");
+			this.menu();
 		}
 		return null;
 	}
@@ -221,13 +213,13 @@ public class PeerClient implements Runnable {
 
 	private void givePeerData() {
 		try {
-			log.info("[PEER-"+this.peerServerPort+"] Cliente conectado al master. Enviando archivos disponibles");
+			log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Cliente conectado al master. Enviando archivos disponibles");
 			PrintWriter outputChannel = new PrintWriter (this.connMaestro.getOutputStream(), true);
 			if(this.liArchivos.isEmpty()) {
-				outputChannel.println("serverPortOn="+this.peerServerPort);
+				outputChannel.println("peerServerPortOn="+this.peerServerPort);
 				outputChannel.println(".END");
 			}else{
-				outputChannel.println("serverPortOn="+this.peerServerPort);
+				outputChannel.println("peerServerPortOn="+this.peerServerPort);
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -242,8 +234,6 @@ public class PeerClient implements Runnable {
 					outputChannel.println(".END");
 				}
 			}
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -252,8 +242,10 @@ public class PeerClient implements Runnable {
 
 	@Override
 	public void run() {
+		Thread myThread = Thread.currentThread();
 		givePeerData();
 		menu();
+		myThread.interrupt();//Not Working
 	}
 	
 }

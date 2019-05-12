@@ -18,6 +18,7 @@ public class Peer {
 	private final Logger log = LoggerFactory.getLogger(Config.class);
 	String peerIp;
 	int peerPort;
+	String directory;
 	
 	PeerClient peerClient;
 	PeerServer peerServer;
@@ -31,31 +32,39 @@ public class Peer {
 	
 	public Peer (String ip,int port,String directory) {
 		//STEP 0: Configuro mis parametros
-		this.peerIp = ip;
-		this.peerPort = port;
-		loadConfig();
 		try {
+			this.peerIp = ip;
+			this.peerPort = port;
+			this.directory = directory;
+			loadConfig();
 			//STEP 1: Cargo mis archivos disponibles
 			this.liArchivos = getArchivos(directory);
 			//STEP 2: Creo una nueva conexion socket 
-			log.debug("Conectando a:"+masterIp+":"+masterPort);
+			log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: Conectando a:"+masterIp+":"+masterPort);
 			this.connMaestro = new Socket(masterIp,masterPort);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		//STEP 3: Creo mis Threads cliente y servidor
-		this.peerServer = new PeerServer(this.peerIp,this.peerPort, this.liArchivos, directory);
-		this.peerClient = new PeerClient(this.connMaestro,this.peerPort, this.liArchivos, directory);
-		Thread tSv = new Thread(this.peerServer);
-		Thread tCli = new Thread(this.peerClient);
-		//STEP 4: Lanzo los Threads cliente y servidor
-		tSv.start();
-		tCli.start();
-		try {
-			tCli.join();
+			//STEP 3: Creo mis Threads cliente y servidor
+			this.peerServer = new PeerServer(this.peerIp,this.peerPort, this.liArchivos, directory);
+			this.peerClient = new PeerClient(this.connMaestro,this.peerPort, this.liArchivos, directory);
+			Thread tSv = new Thread(this.peerServer);
+			Thread tCli = new Thread(this.peerClient);
+			//STEP 4: Lanzo los Threads cliente y servidor
 			tSv.start();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			tCli.start();
+			try {
+				tCli.join();
+			}catch (InterruptedException  e) {
+				log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: Se cerro el cliente.");
+			}
+		} catch (IOException e) {
+			log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: No hay servidores disponibles.");
+			log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: Reintentando en 10 segundos.");
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: Intentando...");
+			main(port, directory);
 		}
 	}
 	
@@ -83,7 +92,7 @@ public class Peer {
 				e.printStackTrace();
 			}
 		}else {
-			log.info("El archivo de inicializacion no existe.");
+			log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: El archivo de inicializacion no existe.");
 		}		
 	}
 	
@@ -116,8 +125,8 @@ public class Peer {
     public String[] getFiles( String path ) {
         String[] arr_res = null;
         File f = new File( path );
-        this.log.info(f.getAbsolutePath());
-        if ( f.isDirectory( )) {
+        log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: "+f.getAbsolutePath());
+        if ( f.isDirectory()) {
             List<String> res   = new ArrayList<>();
             File[] arr_content = f.listFiles();
             int size = arr_content.length;
@@ -127,7 +136,7 @@ public class Peer {
             }
             arr_res = res.toArray( new String[ 0 ] );
         } else {
-        	log.info("No existe la carpeta: "+path+" creandola...");
+        	log.info("[PEER-"+this.peerIp+":"+this.peerPort+"]: No existe la carpeta: "+path+" creandola...");
         	f.mkdir();        	
         }
         return arr_res;

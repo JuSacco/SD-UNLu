@@ -3,6 +3,7 @@ package jusacco.TP2.punto1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -14,12 +15,12 @@ import org.slf4j.LoggerFactory;
 
 
 public class Master implements Runnable{
-	private final Logger log = LoggerFactory.getLogger(Config.class);
+	private final Logger log = LoggerFactory.getLogger(Master.class.getSimpleName());
 	String ip;
 	int port;
     String msg;
 	Socket client;
-	ArrayList<MasterIndex> peerData;
+	volatile ArrayList<MasterIndex> peerData;
 	ArrayList<String[]> connMasters;
     
 	BufferedReader inputChannel;
@@ -40,34 +41,37 @@ public class Master implements Runnable{
 	}
 	
 	public Master(String ip, int port, Socket client, ArrayList<MasterIndex> peerData, ArrayList<String[]> connMasters) {
-		this.peerData = new ArrayList<MasterIndex>();
-		this.connMasters = new ArrayList<String[]>();
+		this.peerData = peerData;
+		this.connMasters = connMasters;
 		this.ip = ip;
 		this.port = port;		
 		this.client = client;
-		this.peerData = peerData;
-		this.connMasters = connMasters;
 		try {
 			this.inputChannel = new BufferedReader (new InputStreamReader (this.client.getInputStream()));
 			this.outputChannel = new PrintWriter (this.client.getOutputStream(), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		actualizarOtrosMaestros();
 	}
 
 
 	public void addPeer(String peer, ArrayList<Archivo> peerSharedData) {
-		this.peerData.add(new MasterIndex(peer,peerSharedData));
+		synchronized (this.peerData) {
+			this.peerData.add(new MasterIndex(peer,peerSharedData));
+		}
 	}
 
 
 	public ArrayList<String> lookupMultipleArchivo(String name) {
 		ArrayList<String> resultado = new ArrayList<String>();
-		for (MasterIndex entry : this.peerData) {
-			if(entry.liArchivo != null) {
-				for(Archivo arch : entry.getLiArchivo()) {
-					if(arch.getName().contains(name)) {
-						resultado.add(entry.getOwner()+"//@t//"+arch.getName());
+		synchronized (this.peerData) {
+			for (MasterIndex entry : this.peerData) {
+				if(entry.getLiArchivo() != null) {
+					for(Archivo arch : entry.getLiArchivo()) {
+						if(arch.getName().contains(name)) {
+							resultado.add(entry.getOwner()+"//@t//"+arch.getName());
+						}
 					}
 				}
 			}
@@ -84,27 +88,26 @@ public class Master implements Runnable{
 			while(!salir){
 				boolean existe = false;
 				if((msg = inputChannel.readLine()) != null) {
-					log.info("[MASTER-"+this.port+"]: Recibi (86)"+msg);
 					if(!msg.contains(".END")) {
 						for(MasterIndex m : this.peerData) {
-							if(m.liArchivo != null) {
-								if(m.owner.contentEquals(data) && m.liArchivo.size()>0) {
-									for(Archivo a : m.liArchivo) {
+							if(m.getLiArchivo() != null) {
+								if(m.getOwner().contentEquals(data) && m.getLiArchivo().size()>0) {
+									for(Archivo a : m.getLiArchivo()) {
 										existe = a.getName().contentEquals(msg);
 									}									
 								}
 							}else {
-								m.liArchivo = new ArrayList<Archivo>();
+								m.setLiArchivo(new ArrayList<Archivo>());
 							}
 						}
 						if(!existe) {
-							log.info("[MASTER-"+this.port+"] Guardando archivo: "+msg+" de "+data);
+							log.info("[MASTER-"+this.port+"]: Guardando archivo: "+msg+" de "+data);
 							store.add(new Archivo(msg));
 						}
 					}else {
 						salir = true;
 						addPeer(data,store);
-						log.info("[MASTER-"+this.port+"]: Terminé de ejecutar requestClientData. Servidor peer corriendo en: "+data);
+						log.info("[MASTER-"+this.port+"]: Terminé de ejecutar una actualizacion. Servidor peer corriendo en: "+data);
 					}
 				}
 			}
@@ -112,6 +115,7 @@ public class Master implements Runnable{
 			e.printStackTrace();
 		}
 	}
+	
 	
 	private void actualizarOtrosMaestros() {
 		ArrayList<MasterIndex> toSend = null;
@@ -121,7 +125,7 @@ public class Master implements Runnable{
 				try {
 					sock = new Socket(str[0],Integer.valueOf(str[1]));
 					PrintWriter outChannel = new PrintWriter (sock.getOutputStream(), true);
-					outChannel.println("actualizarMaster="+this.ip+":"+this.port);
+					outChannel.println("actualizarServerMaster="+this.ip+":"+this.port);
 					Thread.sleep(200);
 					outChannel.println("sending");
 					ObjectOutputStream os = new ObjectOutputStream(sock.getOutputStream());
@@ -133,7 +137,6 @@ public class Master implements Runnable{
 					log.error("Error: "+e.getMessage());
 					sock = null;
 				}
-				
 			}
 		}
 	}
@@ -146,11 +149,9 @@ public class Master implements Runnable{
 		try {
 			while(!end && this.client.isConnected()) {
 				msg = this.inputChannel.readLine();
-				if(msg.isEmpty()) {
-					log.info("Recibi null");
-				}else {
+				actualizarWorker();
+				if(!msg.isEmpty()) {
 					if(msg.split("=").length > 0) {
-							log.info("[MASTER-"+this.port+"] Recibi:"+msg);
 							msgParced = msg.split("=");
 							switch (msgParced[0]) {
 							case "buscar":
@@ -168,51 +169,19 @@ public class Master implements Runnable{
 									msgParced = null;
 								}
 								break;
-							case "addPeer":
-								ArrayList<Archivo> store = new ArrayList<Archivo>();
-								boolean salir = false;
-								String data = client.getLocalAddress()+":"+client.getPort();
-								while(((msg = this.inputChannel.readLine()) != null)&&(!salir)){
-									if(!msg.contentEquals(".END")) {
-										store.add(new Archivo(msg));
-									}else {
-										salir = true;
-										System.out.println("Data:"+data);
-										addPeer(data,store);
-										log.info("Terminé de ejecutar addPeer");
-									}
-								}
-								
-								break;
 							case "cerrarConn":
-								log.info("Cerrando conexion");
-								String s = this.client.getLocalAddress()+":"+this.client.getPort();
-								s = s.substring(1);
-								for (MasterIndex entry : this.peerData) {
-									if(entry.getOwner().contentEquals(s)) {
-										this.peerData.remove(entry);
-									}
-								}
-								log.info("Cliente"+client.toString()+" dado de baja.");
-								log.debug("peerData despues de dar de baja:");
-								for (MasterIndex entry : this.peerData) {
-									log.debug("Owner:"+entry.owner);
-									for (Archivo archivo : entry.liArchivo) {
-										log.debug("Archivo: "+archivo.getName());
-									}
-								}
-								this.peerData.contains(new MasterIndex(s, null));
-								
+								String s = this.client.getInetAddress().getHostAddress()+":"+msgParced[1];
+								log.info("[MASTER-"+this.port+"]: Cerrando conexion con "+s);
+								bajaPeer(s);
+								actualizarOtrosMaestros();
+								actualizarWorker();
 								this.client.close();
 								end = true;
 								break;
-							case "serverPortOn":
+							case "peerServerPortOn":
 								actualizar(msgParced[1]);
 								actualizarOtrosMaestros();
 								break;
-							case "actualizarMasterObj":
-								//String parcedData[] = msgParced[1].split(":");
-								//actualizarByObj(parcedData[0],parcedData[1]);
 							default:
 								break;
 						}	
@@ -222,5 +191,36 @@ public class Master implements Runnable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void bajaPeer(String s) {
+		try {
+			Socket svMaster = new Socket(this.ip,this.port);
+			PrintWriter outChannel = new PrintWriter (svMaster.getOutputStream(), true);
+			outChannel.println("bajaPeer");
+			Thread.sleep(200);
+			outChannel.println(s);
+			svMaster.close();
+		} catch (Exception e) {
+			log.error("Error: "+e.getMessage());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void actualizarWorker() {
+		ArrayList<MasterIndex> returnMessage = null;
+		try {
+			Socket svMaster = new Socket(this.ip,this.port);
+			PrintWriter outChannel = new PrintWriter (svMaster.getOutputStream(), true);
+			outChannel.println("actualizarWorker");
+			Thread.sleep(200);
+			ObjectInputStream is = new ObjectInputStream(svMaster.getInputStream());
+			returnMessage = (ArrayList<MasterIndex>) is.readObject();
+			this.peerData = returnMessage;
+			svMaster.close();
+		} catch (Exception e) {
+			log.error("Error: "+e.getMessage());
+		}
+		
 	}
 }

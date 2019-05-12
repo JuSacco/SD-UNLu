@@ -53,11 +53,11 @@ public class PeerServerWorker implements Runnable {
 			        outputChannel.println("sending");
 			        outputChannel.flush();
 					ObjectOutputStream os = new ObjectOutputStream(this.client.getOutputStream());
-					log.info("Worker enviando el archivo: "+name);	
+					log.info("[PEER-SERVER-WORKER-"+this.client.getLocalPort()+"]: Worker enviando el archivo: "+name);	
 					os.writeObject(toSend);	       
 				}else {
 			        outputChannel.println("error");
-			        log.error("Archivo "+name+" no existe");
+			        log.info("[PEER-SERVER-WORKER-"+this.client.getLocalPort()+"]: Archivo "+name+" no existe");
 				}
 			}else {
 				outputChannel.println("error");
@@ -77,7 +77,7 @@ public class PeerServerWorker implements Runnable {
 	}
 	
 	public ArrayList<String> lookupMultipleArchivo(String name) {
-		ArrayList<String> resultado = null;
+		ArrayList<String> resultado = new ArrayList<String>();
 		int counter = 0;
 		for (Archivo archivo : liArchivos) {
 			counter ++;
@@ -98,7 +98,7 @@ public class PeerServerWorker implements Runnable {
 			this.inputChannel = new BufferedReader (new InputStreamReader (this.client.getInputStream()));
 			this.outputChannel = new PrintWriter (this.client.getOutputStream(), true);
 			msg = this.inputChannel.readLine();
-			System.out.println("MSG: "+msg);
+			log.info("[PEER-SERVER-WORKER-"+this.client.getLocalPort()+"]: Recibi: "+msg);
 			msgParced = msg.split("=");
 			switch (msgParced[0]) {
 			case "buscar":
@@ -110,7 +110,7 @@ public class PeerServerWorker implements Runnable {
 				break;
 			case "descargar":
 				enviarArchivo(msgParced[1]);
-				log.info("Archivo enviado!");
+				log.info("[PEER-SERVER-WORKER-"+this.client.getLocalPort()+"]: Archivo enviado!");
 				break;
 			default:
 				break;

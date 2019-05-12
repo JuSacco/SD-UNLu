@@ -1,4 +1,0 @@
-pdf1
-pdf2
-pdf3
-.END
