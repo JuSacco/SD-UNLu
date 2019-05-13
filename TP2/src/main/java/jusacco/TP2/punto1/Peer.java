@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class Peer {
 	private final String CONF_PATH = "./config.txt";
@@ -36,6 +37,7 @@ public class Peer {
 			this.peerIp = ip;
 			this.peerPort = port;
 			this.directory = directory;
+			MDC.put("log.name", Peer.class.getSimpleName().toString()+"-"+this.peerPort);
 			loadConfig();
 			//STEP 1: Cargo mis archivos disponibles
 			this.liArchivos = getArchivos(directory);
@@ -145,6 +147,7 @@ public class Peer {
 
 	public static void main( int port,String folder) {
 		new Peer("localhost",port,folder);
+		MDC.remove("log.name");
 	}
 
 }

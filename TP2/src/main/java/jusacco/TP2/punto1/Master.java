@@ -11,11 +11,12 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 
 
 public class Master implements Runnable{
-	private final Logger log = LoggerFactory.getLogger(Master.class.getSimpleName());
+	private final Logger log = LoggerFactory.getLogger(Master.class);
 	String ip;
 	int port;
     String msg;
@@ -143,6 +144,7 @@ public class Master implements Runnable{
 	
 	@Override
 	public void run() {
+		MDC.put("log.name", Master.class.getSimpleName().toString()+"-"+this.port);
 		String msg = "";
 		String[] msgParced;
 		boolean end = false;

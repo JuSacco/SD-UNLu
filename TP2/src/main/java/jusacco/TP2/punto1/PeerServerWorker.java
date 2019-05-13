@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class PeerServerWorker implements Runnable {
 	ArrayList<Archivo> liArchivos;
@@ -19,7 +20,7 @@ public class PeerServerWorker implements Runnable {
 	String directory;
 	BufferedReader inputChannel;
 	PrintWriter outputChannel;
-	private final Logger log = LoggerFactory.getLogger(Config.class);
+	private final Logger log = LoggerFactory.getLogger(PeerServerWorker.class);
 	
 	public PeerServerWorker(ArrayList<Archivo> liArchivos, Socket client,String directory) {
 		this.client = client;
@@ -94,6 +95,7 @@ public class PeerServerWorker implements Runnable {
 	public void run() {
 		String msg;
 		String[] msgParced;
+		MDC.put("log.name", PeerServerWorker.class.getSimpleName().toString()+"-"+this.client.getLocalPort()+"-"+Thread.currentThread().getId());
 		try {
 			this.inputChannel = new BufferedReader (new InputStreamReader (this.client.getInputStream()));
 			this.outputChannel = new PrintWriter (this.client.getOutputStream(), true);

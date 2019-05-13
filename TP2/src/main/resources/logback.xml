@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-<!--  URL base: https://www.baeldung.com/logback -->
- <!--  DEFINE CONSOLE OUT PARAMETERS -->
+
+    <!--  DEFINE CONSOLE OUT PARAMETERS -->
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{HH:mm:ss} [%thread] %-5level - %msg%n</pattern>
     </encoder>
   </appender>
-  
- <!--  DEFINE FILE PARAMETERS -->
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-  	<!--  THIS TAKES NAME FROM CREATION CLASS -->
-  	<!--  String packetName=Server.class.getSimpleName().toString();
-		System.setProperty("log.name",packetName);//Defino el nombre del archivo de log-->
-    <file>${log.name}.log</file>
-    <encoder>
-      <pattern>%d{HH:mm:ss} [%thread] %-5level - %msg%n</pattern>
-    </encoder>
-  </appender>
- 
-  <root level="debug">
-  <!--  THIS DEFINES WHICH CONFIGURATION IS ENABLED TO USE -->
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-  </root>
- 
-  <logger name="punto1" additivity="true" level="info">
-      <appender-ref ref="FILE" />
-  </logger>
+
+
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>log.name</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${userid}" class="ch.qos.logback.core.FileAppender">
+                <file>./logs/${log.name}.log</file>
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%d{HH:mm:ss} [%thread] %-5level - %msg%n</pattern>
+                </layout>
+            </appender>
+        </sift>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="SIFT" />
+        <appender-ref ref="STDOUT" />
+    </root>
+
+
 </configuration>

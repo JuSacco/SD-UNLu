@@ -7,12 +7,13 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class PeerServer implements Runnable{
 	String peerIp;
 	int peerPort;
 	ArrayList<Archivo> liArchivos;
-	private final Logger log = LoggerFactory.getLogger(Config.class);
+	private final Logger log = LoggerFactory.getLogger(PeerServer.class);
 	String directory;
 	
 	public PeerServer (String ip, int port, ArrayList<Archivo> liArchivos, String directory) {
@@ -27,6 +28,7 @@ public class PeerServer implements Runnable{
 	@SuppressWarnings("resource")
 	public void run() {
 		try {
+			MDC.put("log.name", PeerServer.class.getSimpleName().toString()+"-"+this.peerPort+"-"+Thread.currentThread().getId());
 			ServerSocket ss = new ServerSocket (this.peerPort);
 			log.info("[SERVER PEER-"+this.peerPort+"]: ON");
 			int counter = 0;

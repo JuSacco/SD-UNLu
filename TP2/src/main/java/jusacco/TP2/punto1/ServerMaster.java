@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 
 public class ServerMaster {
@@ -24,7 +25,7 @@ public class ServerMaster {
 		ArrayList<String[]> connMasters;
 		ArrayList<MasterIndex> peerData;
 		Map<String, String> mapPeer;
-		private final Logger log = LoggerFactory.getLogger(Config.class);
+		private final Logger log = LoggerFactory.getLogger(ServerMaster.class);
 
 		@SuppressWarnings("resource")
 		public ServerMaster (String ip,int port) {
@@ -34,6 +35,7 @@ public class ServerMaster {
 			this.connMasters = new ArrayList<String[]>();
 			this.peerData = new ArrayList<MasterIndex>();
 			this.mapPeer = new HashMap<String,String>();
+			MDC.put("log.name", ServerMaster.class.getSimpleName().toString()+"-"+this.port);
 			registrarConfig(this.ip,this.port);
 			try {
 				ServerSocket ss = new ServerSocket (this.port);
@@ -293,6 +295,7 @@ public class ServerMaster {
 		
 		public static void main(int args) {
 			new ServerMaster("127.0.0.1", args);
+			MDC.remove("log.name");
 		}
 		
 }

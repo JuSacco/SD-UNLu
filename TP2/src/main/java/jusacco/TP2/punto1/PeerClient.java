@@ -14,18 +14,20 @@ import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class PeerClient implements Runnable {
 	String peerIp;
 	int peerServerPort;
 	String directory;
-	private final Logger log = LoggerFactory.getLogger(Config.class);
+	private final Logger log = LoggerFactory.getLogger(PeerClient.class);
 	Socket connMaestro;
 	ArrayList<Archivo> liArchivos;
 	private Scanner sc; 
 	
 	public PeerClient(Socket connMaestro, int peerServerPort, ArrayList<Archivo> liArchivos, String directory) {
 		this.connMaestro = connMaestro;
+		this.peerIp = connMaestro.getLocalAddress().getCanonicalHostName();
 		this.peerServerPort = peerServerPort;
 		this.directory = directory;
 		log.info("[PEER-CLIENT-"+this.peerIp+":"+this.peerServerPort+"]: Cargando mis archivos para compartir...");
@@ -243,9 +245,11 @@ public class PeerClient implements Runnable {
 	@Override
 	public void run() {
 		Thread myThread = Thread.currentThread();
+		MDC.put("log.name", PeerClient.class.getSimpleName().toString()+"-"+this.peerServerPort+"-"+myThread.getId());
 		givePeerData();
 		menu();
 		myThread.interrupt();//Not Working
+		MDC.remove("log.name");
 	}
 	
 }
