@@ -1,0 +1,309 @@
+17:15:42 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:42 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:42 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:42 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:46 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:46 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:46 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:46 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:50 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:50 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:50 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:50 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:54 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:54 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:54 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:54 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:58 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:58 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:15:58 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:15:58 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:16:02 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:16:02 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:16:02 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:16:02 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:18:41 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:18:41 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:18:41 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:18:41 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:27:55 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:27:55 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:27:55 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:27:55 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - 	localhost:6000
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - 	localhost:7000
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+17:28:35 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+18:01:20 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:01:20 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:01:20 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:01:20 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - 	localhost:6000
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - 	localhost:7000
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+18:02:00 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+18:19:49 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:19:49 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:19:49 [RMI TCP Connection(6)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 1
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - 	localhost:6000
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - 	localhost:7000
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:20:29 [RMI TCP Connection(4)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:20:29 [RMI TCP Connection(6)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 1
+18:22:53 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:22:53 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:22:53 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:22:53 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:22:53 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:22:53 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:22:53 [RMI TCP Connection(10)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 1
+18:22:53 [RMI TCP Connection(11)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 2
+18:22:53 [RMI TCP Connection(17)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 3
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - 	localhost:6000
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - 	localhost:7000
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - 	localhost:6000
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+18:23:33 [RMI TCP Connection(8)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - 	localhost:7000
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - 	localhost:6000
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - 	localhost:7000
+18:23:33 [RMI TCP Connection(6)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+18:23:33 [RMI TCP Connection(7)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:02:43 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]: Recibi una peticion de realizarTarea. Asignando nodo
+20:02:43 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(51)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 1
+20:02:43 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(52)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 2
+20:02:43 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(43)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 3
+20:02:43 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:02:43 [RMI TCP Connection(47)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 4
+20:02:43 [RMI TCP Connection(49)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 5
+20:02:43 [RMI TCP Connection(50)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 6
+20:02:43 [RMI TCP Connection(46)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 7
+20:02:43 [RMI TCP Connection(48)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 8
+20:02:43 [RMI TCP Connection(45)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 9
+20:02:43 [RMI TCP Connection(44)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 10
+20:02:43 [RMI TCP Connection(70)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 11
+20:02:43 [RMI TCP Connection(72)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 12
+20:02:43 [RMI TCP Connection(71)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 13
+20:02:43 [RMI TCP Connection(73)-192.168.0.101] INFO  - Nodo: Cantidad de clientes activos 14
+20:03:23 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - 	localhost:7000
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(25)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:23 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]: localhost:6000 Atendiendo 3 Clientes
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - 	localhost:7000
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:23 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:23 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - 	localhost:7000
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - 	localhost:6000
+20:03:23 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(19)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:23 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:23 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:23 [RMI TCP Connection(30)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:23 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(17)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]: localhost:7000 Atendiendo 0 Clientes
+20:03:24 [RMI TCP Connection(30)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Vacios: 
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(22)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(26)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(20)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - 	localhost:7000
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(22)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(21)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Normal: 
+20:03:24 [RMI TCP Connection(30)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(24)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(28)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(29)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(27)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Alerta: 
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(18)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(23)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
+20:03:24 [RMI TCP Connection(30)-192.168.0.101] INFO  - 	localhost:6000
+20:03:24 [RMI TCP Connection(30)-192.168.0.101] INFO  - [Balanceador]Estado nodos: Critico: 
