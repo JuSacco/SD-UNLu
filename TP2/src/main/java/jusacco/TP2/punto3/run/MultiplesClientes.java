@@ -1,80 +1,32 @@
 package jusacco.TP2.punto3.run;
 
+import java.rmi.NotBoundException;
+
 import jusacco.TP2.punto3.Cliente;
 
 public class MultiplesClientes {
 	
+	public void newClient() {
+		new Thread(new Runnable() {
+		    public void run() {
+		    	try {
+					Cliente.main();
+				} catch (NotBoundException e) {
+					e.printStackTrace();
+				}
+		    }
+		}).start();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			System.err.println("Nope");
+		}
+	}
+	
 	public MultiplesClientes() {
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Juani"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Jose"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Luis"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Juan"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Rodrigo"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Maria"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Tete"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Roro"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Mili"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Rerere"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Menganito"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Fulanito"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Tenganito"});
-		    }
-		}).start();
-		new Thread(new Runnable() {
-		    public void run() {
-		    	Cliente.main(new String[]{"localhost","9000","Rolanguito"});
-		    }
-		}).start();
+		for (int i = 0; i < 55; i++) {
+			newClient();
+		}
 	}
 	
 	

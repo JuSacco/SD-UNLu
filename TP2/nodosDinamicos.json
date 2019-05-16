@@ -1,0 +1,7 @@
+{
+  "nodos": [
+              "localhost:9010",
+              "localhost:9011",
+              "localhost:9012"
+            ]
+}

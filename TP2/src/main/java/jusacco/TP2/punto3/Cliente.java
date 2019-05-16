@@ -1,51 +1,40 @@
 package jusacco.TP2.punto3;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Scanner;
+import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
-
-
-public class Cliente {
-	Logger log = LoggerFactory.getLogger(Cliente.class);
-	String ip;
-	String clientName;
-	int port;
-	Scanner sc = new Scanner(System.in);
-	public Cliente(String ip, int port,String name) {
-		this.ip= ip;
-		this.port = port;
-		this.clientName = name;
-		this.startClient();
-	}
-	private void startClient() {
-		try {
-			Registry clientRMI = LocateRegistry.getRegistry(this.ip, this.port);
-			
-			System.out.println("Lista de servicios disponibles: ");
-			String[] services = clientRMI.list();
-			int i = 0;
-			for (String service : services) {
-				System.out.println(i+"."+service);
-				i++;
-			}
-			IClientServices clientStub = (IClientServices) clientRMI.lookup(services[0]);
-			System.out.println(clientStub.realizarTarea(this.clientName));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+public class Cliente{
 	
-	}
-	public static void main(String[] args) {
-		int thread = (int) Thread.currentThread().getId();
-		String logname = Cliente.class.getSimpleName().toString()+"-"+thread;
-		System.setProperty("log.name",logname);
-		new Cliente (args[0],Integer.valueOf(args[1]),args[2]);
+	public static void main() throws NotBoundException {
+		try {
+			Random rnd = new Random();
+			int opcion = rnd.nextInt(2);
+			int[] v1 = new int[3];
+			int[] v2 = new int[3];
+			int[] resultado;
+			Registry clienteRMI = LocateRegistry.getRegistry("127.0.0.1",9000);
+			ITarea cliStub = (ITarea) clienteRMI.lookup("Tarea");
+			
+			for (int i = 0; i < 3; i++) {//Genero 2 vectores rnd
+				v1[i] = new Random().nextInt(9);
+				v2[i] = new Random().nextInt(9);
+			}
+			if(opcion == 0) {
+				
+					resultado = cliStub.restar(v1, v2);
+				
+				System.out.printf("Resta de Vectores: v1[%d,%d,%d] y v2[%d,%d,%d]\n",v1[0],v1[1],v1[2],v2[0],v2[1],v2[2]);
+			}else {
+				resultado = cliStub.sumar(v1, v2);
+				System.out.printf("Suma de Vectores: v1[%d,%d,%d] y v2[%d,%d,%d]\n",v1[0],v1[1],v1[2],v2[0],v2[1],v2[2]);
+			}
+			System.out.printf("Resultado: [%d,%d,%d]\n",resultado[0],resultado[1],resultado[2]);
+			
+		} catch (RemoteException e) {
+		}
 	}
 
 }
