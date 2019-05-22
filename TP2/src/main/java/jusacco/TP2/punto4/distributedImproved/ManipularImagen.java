@@ -1,4 +1,4 @@
-package jusacco.TP2.punto4.distributedImproved;
+package ejer4.alternativo.distributedImproved;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -16,7 +16,6 @@ public class ManipularImagen {
 	public ManipularImagen(BufferedImage image, int cantidad) throws IOException {
 		this.image = image;
 		this.cantPartes = (int) Math.sqrt(cantidad);
-		System.out.println(cantPartes);
 	}
 	
 	public ArrayList<Imagen> cortar(){

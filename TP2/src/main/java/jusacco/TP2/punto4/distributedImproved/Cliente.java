@@ -1,4 +1,4 @@
-package jusacco.TP2.punto4.distributedImproved;
+package ejer4.alternativo.distributedImproved;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class Cliente{
 		ITarea cliStub = (ITarea) clienteRMI.lookup("Tarea");
 		
 		File file = null;
-		file = new File("./repositorioImagenes/mily.jpg");
+		file = new File("./repositorioImagenes/Lisbon.jpg");
 		
 		Imagen imagen = new Imagen(ImageIO.read(file));
 		

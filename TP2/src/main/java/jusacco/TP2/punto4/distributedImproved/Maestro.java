@@ -1,7 +1,10 @@
-package jusacco.TP2.punto4.distributedImproved;
+package ejer4.alternativo.distributedImproved;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.Thread.State;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,6 +14,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 
@@ -24,11 +29,11 @@ import com.rabbitmq.client.MessageProperties;
 
 public class Maestro implements ITarea{
 	int port;
-	final String USERNAME = "admin";
-	final String PWD = "admin";
+	final String USERNAME = "guest";
+	final String PWD = "guest";
 	final String IP = "localhost";
 	final int CANT_WORKER = 10;
-	final int CANT_CORTES = 20;
+	final int CANT_CORTES = 1500;
 	Logger log = LoggerFactory.getLogger(Maestro.class);
 	String ip;
 	String username;
@@ -80,14 +85,13 @@ public class Maestro implements ITarea{
 		    for (Imagen imgCutted : arrayImg) {
 				this.queueChannel.basicPublish("", this.queueTrabajos, MessageProperties.PERSISTENT_TEXT_PLAIN, Imagen.imagenToByteArr(imgCutted));
 			}
-			log.info("Cola queueTrabajos: "+this.queueChannel.messageCount(this.queueTrabajos));
+			log.info("Cola queueTrabajos: "+(int)this.queueChannel.messageCount(this.queueTrabajos));
 			instantiateWorkers();
-			int trabajos = (int) this.queueChannel.messageCount(this.queueTrabajos);
+			int cortes = (int)Math.pow(((int)Math.sqrt(CANT_CORTES)),2);
 		    while(!termino) {
 		    	int terminados = (int) this.queueChannel.messageCount(this.queueTerminados);
-		    	if(terminados == trabajos){
+		    	if(terminados == cortes){//Cant Cortes Real
 		    		termino = true;
-					log.info("Master: Terminaron de trabajar los workers");
 		    	}
 		    }
 	    	synchronized (this.queueConnection) {
@@ -96,17 +100,34 @@ public class Maestro implements ITarea{
 					arrayImgConFiltro.add(Imagen.ByteArrToImagenObj(data));
 				}
 			}
+	    	/*
+	    	 * Ordenar el array de partes
+	    	 */
 	    	Collections.sort(arrayImgConFiltro,(o1, o2) -> Integer.compare(o1.getNroImage(),o2.getNroImage()));
+	    	
 			for(Imagen i : arrayImgConFiltro) {
 				buffImgOrdenada.add(i.getImage());
 			}
 		    BufferedImage result = imgHandler.unirImagen(buffImgOrdenada);
 		    LocalTime endTime = LocalTime.now();
 			
+		    /*
+		     * Eliminio las colas y las vuelvo a crear para borrar total
+		     */
+		   
+		    this.queueChannel.queueDelete(this.queueTrabajos);
+		    this.queueChannel.queueDelete(this.queueTerminados);
+		    this.queueChannel.queueDelete(this.queueEnProceso);
+			
+			this.queueChannel.queueDeclare(this.queueTrabajos, true, false, false, null);
+			this.queueChannel.queueDeclare(this.queueEnProceso, true, false, false, null);
+			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
+		    
 			log.info("Master: Enviando el resultado");
 		    log.info("Init time:"+initTime.toString());
 		    log.info("End time:"+endTime.toString());
 		    log.info("Delta time:"+Duration.between(initTime, endTime));
+		    
 			return new Imagen(result);
 		
 		} catch (IOException e) {
@@ -114,7 +135,7 @@ public class Maestro implements ITarea{
 		}
 		return null;
 	}
-
+	
 	private void initialConfig(int port) {
 		this.port = port;
 		this.username = this.USERNAME;
@@ -135,7 +156,6 @@ public class Maestro implements ITarea{
 			// [STEP 3] - Create the queues
 			//queueDeclare(String queue, boolean durable, boolean exclusive, boolean autoDelete, Map<String, Object> arguments)
 			this.queueChannel.queueDeclare(this.queueTrabajos, true, false, false, null);
-			
 			this.queueChannel.queueDeclare(this.queueEnProceso, true, false, false, null);
 			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
 			

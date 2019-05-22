@@ -1,4 +1,4 @@
-package jusacco.TP2.punto4.distributedImproved;
+package ejer4.alternativo.distributedImproved;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.MessageProperties;
 
 public class Worker implements Runnable{
@@ -31,7 +32,7 @@ public class Worker implements Runnable{
 		try {
 			int trabajos = (int) this.queueChannel.messageCount(this.queueTrabajos);
 		    while(!this.termino) {
-		    	try { 
+				try { 
 			    	int terminados = (int) this.queueChannel.messageCount(this.queueTerminados);
 					byte[] byteImg;
 					int i = 0;
@@ -39,6 +40,11 @@ public class Worker implements Runnable{
 					boolean esta = false;
 					synchronized (this.queueConnection) {
 						byteImg = this.queueChannel.basicGet(this.queueTrabajos, false).getBody();
+						/*
+						GetResponse gr = this.queueChannel.basicGet(this.queueTrabajos, false);
+						this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
+						byteImg = gr.getBody();
+						*/
 						cantProceso = (int) this.queueChannel.messageCount(this.queueEnProceso);
 						log.debug("Worker "+Thread.currentThread().getId()+": obteniendo trabajo id:"+byteImg.hashCode());
 						if(cantProceso > 0) {
@@ -64,19 +70,17 @@ public class Worker implements Runnable{
 						imgObj.setByteImage(Imagen.buffImgToByteArr(filtro.aplicarFiltro()));
 						synchronized (this.queueConnection) {
 							this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, Imagen.imagenToByteArr(imgObj));
-							log.debug("Worker "+Thread.currentThread().getId()+": Publique trabajo id:"+byteImg.hashCode());
-					    	terminados = (int) this.queueChannel.messageCount(this.queueTerminados);
-							log.debug("Terminados:"+terminados);
-							log.debug("Trabajos:"+trabajos);
 						}
+						log.debug("Worker "+Thread.currentThread().getId()+": Publique trabajo id:"+byteImg.hashCode());
 					}
-			    	if(terminados == trabajos){
+					trabajos = (int) this.queueChannel.messageCount(this.queueTrabajos);
+			    	if(trabajos==0) {
 			    		this.termino = true;
 			    	}
 				} catch (Exception e) {
 			    	int terminados = (int) this.queueChannel.messageCount(this.queueTerminados);
 			    	trabajos = (int) this.queueChannel.messageCount(this.queueTrabajos);
-					if(terminados == trabajos){
+			    	if(trabajos==0) {
 						this.termino = true;
 			    	}
 				}
