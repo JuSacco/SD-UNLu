@@ -27,7 +27,7 @@ public class Main {
 			image = ImageIO.read(file);
 			log.info("Calculando imagen (Con cortes): "+file.getName());
 			
-			ManipularImagen imgHandler = new ManipularImagen(image,CANT_CORTES);
+			ManipularImagen imgHandler = new ManipularImagen(image,CANT_CORTES); 
 			ArrayList<BufferedImage> arrayImg = imgHandler.cortar();
 		    ArrayList<BufferedImage> arrayImgConFiltro = new ArrayList<BufferedImage>(); 
 			

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import jusacco.TP2.punto4.distributedImproved.Imagen;
+
 public class ManipularImagen {
 	
 	BufferedImage image;
@@ -19,9 +21,8 @@ public class ManipularImagen {
 	}
 	
 	public ArrayList<BufferedImage> cortar(){
-		int width = image.getWidth()-2;
-		int height = image.getHeight()-2;
-		
+		int width = image.getWidth();
+		int height = image.getHeight();
 		ArrayList<BufferedImage> arrayImagen = new ArrayList<BufferedImage>();
 		
 		for (int i = 0; i < cantPartes; i++) {
@@ -34,8 +35,9 @@ public class ManipularImagen {
 	}
 	
 	public BufferedImage unirImagen(ArrayList<BufferedImage> partes) {
-		int width = image.getWidth()-2;
-		int height = image.getHeight()-2;
+		/////////////////////////////////////
+		int width = image.getWidth()-cantPartes*2;//Resto lo px q pierdo pq no es exacto el calculo
+		int height = image.getHeight()-cantPartes*2;
 		BufferedImage imgFinal = new BufferedImage(width, height, image.getType());
 		Graphics g = imgFinal.getGraphics();
 		
