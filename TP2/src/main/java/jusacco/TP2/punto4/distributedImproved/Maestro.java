@@ -1,4 +1,4 @@
-package ejer4.alternativo.distributedImproved;
+package jusacco.TP2.punto4.distributedImproved;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -32,8 +32,8 @@ public class Maestro implements ITarea{
 	final String USERNAME = "guest";
 	final String PWD = "guest";
 	final String IP = "localhost";
-	final int CANT_WORKER = 10;
-	final int CANT_CORTES = 1500;
+	final int CANT_WORKER = 500;
+	final int CANT_CORTES = 10;
 	Logger log = LoggerFactory.getLogger(Maestro.class);
 	String ip;
 	String username;

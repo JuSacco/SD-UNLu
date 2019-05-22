@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 public class Main {
 	Logger log = LoggerFactory.getLogger(Main.class);
 	
-	public void singleThConCortes(String src) {
+	public void singleThConCortes(String src, int cant) {
 		try {
-			int CANT_CORTES = 20;
+			int CANT_CORTES = cant;
 			LocalTime initTime = LocalTime.now();
 			BufferedImage image;
 			File file = null;
@@ -88,8 +88,8 @@ public class Main {
 	}
 	public static void main(String[] args) {
 		Main m = new Main();
-		m.singleThConCortes("./repositorioImagenes/estrellas.jpg");
-		//m.singleThSinCortes("./repositorioImagenes/estrellas.jpg");
+		//m.singleThConCortes("./repositorioImagenes/audi.jpg",1500);
+		m.singleThSinCortes("./repositorioImagenes/audi.jpg");
 	}
 
 }

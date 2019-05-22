@@ -1,4 +1,4 @@
-package ejer4.alternativo.distributedImproved;
+package jusacco.TP2.punto4.distributedImproved;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class Cliente{
 		ITarea cliStub = (ITarea) clienteRMI.lookup("Tarea");
 		
 		File file = null;
-		file = new File("./repositorioImagenes/Lisbon.jpg");
+		file = new File("./repositorioImagenes/diego.jpg");
 		
 		Imagen imagen = new Imagen(ImageIO.read(file));
 		
@@ -31,7 +31,6 @@ public class Cliente{
 		
 		Imagen returned = cliStub.convertirImg(imagen);
 	
-		//DEBUG ONLY
 		returned.persistImg("./image_multiThread_sobel.jpg");
 	
 	}

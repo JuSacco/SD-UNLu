@@ -1,4 +1,4 @@
-package ejer4.alternativo.distributedImproved;
+package jusacco.TP2.punto4.distributedImproved;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.MessageProperties;
 
 public class Worker implements Runnable{
@@ -40,11 +39,6 @@ public class Worker implements Runnable{
 					boolean esta = false;
 					synchronized (this.queueConnection) {
 						byteImg = this.queueChannel.basicGet(this.queueTrabajos, false).getBody();
-						/*
-						GetResponse gr = this.queueChannel.basicGet(this.queueTrabajos, false);
-						this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
-						byteImg = gr.getBody();
-						*/
 						cantProceso = (int) this.queueChannel.messageCount(this.queueEnProceso);
 						log.debug("Worker "+Thread.currentThread().getId()+": obteniendo trabajo id:"+byteImg.hashCode());
 						if(cantProceso > 0) {

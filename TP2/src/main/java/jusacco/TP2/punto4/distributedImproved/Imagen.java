@@ -1,4 +1,4 @@
-package ejer4.alternativo.distributedImproved;
+package jusacco.TP2.punto4.distributedImproved;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
