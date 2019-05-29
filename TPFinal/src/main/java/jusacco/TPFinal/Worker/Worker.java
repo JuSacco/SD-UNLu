@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Inet4Address;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -76,11 +77,17 @@ public class Worker {
 	
 	
 	public Worker() {
+		log.info("<-- [STEP 1] - LEYENDO ARCHIVO DE CONFIGURACION -->");
 		readConfigFile();
+		log.info("<-- [STEP 2] - PREPARANDO EL BANCO DE TRABAJO   -->");
 		prepareWorkplace();
+		log.info("<-- [STEP 3] - REALIZANDO CONEXION RMI		  -->");
 		getRMI();
+		log.info("<-- [STEP 4] - REALIZANDO CONEXION CON RABBITMQ -->");
 		getQueueConn();
+		log.info("<-- [STEP 5] - REVISANDO ARCHIVOS NECESARIOS    -->");
 		if(checkNeededFiles()) {
+			log.info("<-- [STEP 6] - ESPERANDO TRABAJOS		      -->");
 			getWork();
 		}else {
 			log.debug("Error inesperado!");
@@ -165,7 +172,7 @@ public class Worker {
 						startRenderTime(msg.getName(), msg.getTiempoLimite());
 					salir = true;
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				//e.printStackTrace();
 				try {
 					Thread.sleep(1000);
@@ -207,10 +214,10 @@ public class Worker {
 	}
 	private void startRenderSamples(String name, int maxSample) {
 		// blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
-		
+		int i = 1;
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
-		//String frames = "-f 2";
-		String fromTo = "-s "+this.MIN_FRAME+" -e "+maxSample+" -a";
+		String frames = "-f ";
+		//String fromTo = "-s "+this.MIN_FRAME+" -e "+maxSample+" -a";
 		String useExtension = "-x 1";
 		String pyScript = "-P "+this.myDirectory+"defaultRenderOptions.py";
 		//String output = "-o "+this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
@@ -223,24 +230,24 @@ public class Worker {
 			File f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
 			System.out.println("CMD: "+ f.getPath());
 			ejecutar(f.getPath());
-			log.info("Iniciando el renderizado...");
-			cmd = " -b \""+blendToRender+"\" "+useExtension+" "+fromTo;
-			f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
-			System.out.println("CMD: "+ f.getPath());
-			ejecutar(f.getPath());
+			while(i<=maxSample) {
+				cmd = " -b \""+blendToRender+"\" "+useExtension+" "+frames+i;
+				i++;
+				f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
+				System.out.println("CMD: "+ f.getPath());
+				ejecutar(f.getPath());
+				ArrayList<String> imgTerminadas = getFiles(finishedWorkFolder.getPath());
+				try {
+					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
+					BufferedImage image = ImageIO.read(imgRendered);
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp+":"+this.localPort).getBytes());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}else {
 			finishedWorkFolder.mkdir();
 			startRenderSamples(name,maxSample);
-		}
-		ArrayList<String> imgTerminadas = getFiles(finishedWorkFolder.getPath());
-		for(String s : imgTerminadas) {
-			try {
-				File f = new File(finishedWorkFolder.getPath()+"/"+s);
-				BufferedImage image = ImageIO.read(f);
-				this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp+":"+this.localPort).getBytes());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -322,7 +329,7 @@ public class Worker {
 			while (true) {
 				line = input.readLine();
 				if (line == null) break;
-				System.out.println(" Line: "+line);
+				System.out.println("Line: "+line);
 			}
 			p.waitFor();
 		} catch (IOException e) {
@@ -472,6 +479,8 @@ public class Worker {
 		Gson gson = new Gson();
 		Map config;
 		try {
+			this.localIp = Inet4Address.getLocalHost().getHostAddress();
+			
 			config = gson.fromJson(new FileReader(this.myDirectory+"workerConfig.json"), Map.class);
 			Map server = (Map) config.get("server");
 			this.serverIp = server.get("ip").toString();

@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.MessageProperties;
 
 import jusacco.TPFinal.Cliente.Imagen;
@@ -114,7 +115,7 @@ public class Servidor implements IClient{
 			// [STEP 2] - ChannelConnection
 			this.queueChannel = this.queueConnection.createChannel();
 			// [STEP 3] - Create the queues
-			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, false, null);
+			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, true, null);
 			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
 			log.info("RabbitMQ inicio correctamente.");
 		} catch (IOException e) {
@@ -129,10 +130,10 @@ public class Servidor implements IClient{
 	    try {
 			this.queueChannel.queueDelete(this.queueTrabajo);
 		    this.queueChannel.queueDelete(this.queueTerminados);
-			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, false, null);
+			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, true, null);
 			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
-	    } catch (IOException e1) {
-			e1.printStackTrace();
+	    } catch (Exception e1) {
+			log.error(e1.getMessage());
 		}
 		
 		//FTP RELATED
@@ -147,18 +148,7 @@ public class Servidor implements IClient{
 
 	@Override
 	public Imagen renderRequest(Mensaje msg) throws RemoteException {
-	    /*
-	     * Eliminio las colas y las vuelvo a crear para borrar total
-	     */
-	    try {
-			this.queueChannel.queueDelete(this.queueTrabajo);
-		    this.queueChannel.queueDelete(this.queueTerminados);
-			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, false, null);
-			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
-	    } catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		boolean salir = false;
+	    boolean salir = false;
 		ArrayList<BufferedImage> renderedImages = new ArrayList<BufferedImage>();
 		LocalTime initTime = LocalTime.now();
 		boolean porSamples = msg.cantidadSamples > 0;
@@ -169,6 +159,9 @@ public class Servidor implements IClient{
 		log.info("Tiempo inicio:\t"+initTime.toString());
 		try {
 			this.queueChannel.basicPublish("", this.queueTrabajo, MessageProperties.PERSISTENT_TEXT_PLAIN, msg.getBytes());
+			//For obtain DeliveryTag
+			GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
+			this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
 			if(porSamples) {//Entonces cada worker hace X cantidad de samples
 				Map<String,Integer> workers = new HashMap<String,Integer>();
 				while(!salir) {
@@ -180,17 +173,20 @@ public class Servidor implements IClient{
 			    			if(workers.containsKey(m.from)) {
 			    				int count = workers.get(m.from);
 			    				workers.put(m.from, count + 1);
+			    			}else {
+			    				workers.put(m.from, 1);
 			    			}
 			    		}
 			    		for (String key: workers.keySet()) {
-			    		    System.out.println("key : " + key);
-			    		    System.out.println("value : " + workers.get(key));
+			    		    System.out.println("Worker : " + key);
+			    		    System.out.println("Render : " + workers.get(key));
 			    		    if(workers.get(key) == msg.cantidadSamples) {
 			    		    	workers.remove(key);
 			    		    }
 			    		}
 			    		if(renderedImages.size()>0 && workers.isEmpty()) {
 			    			salir = true;
+			    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
 			    		}
 					}catch (Exception e) {
 						
