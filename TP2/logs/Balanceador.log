@@ -1,0 +1,8 @@
+14:03:52 [Thread-0] INFO  - Cree nuevo NODO port: 9010 ,listaNODOS: {localhost:9010=0}
+14:03:52 [Thread-0] INFO  - Cree nuevo NODO port: 9011 ,listaNODOS: {localhost:9010=0, localhost:9011=0}
+14:03:52 [Thread-0] INFO  - Balanceador RMI Iniciado!
+14:03:56 [RMI TCP Connection(23)-192.168.56.1] INFO  - Cree nuevo NODO port: 9012 ,listaNODOS: {localhost:9010=4, localhost:9011=4, localhost:9012=0}
+14:03:56 [RMI TCP Connection(23)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 1 tareas!
+14:03:58 [RMI TCP Connection(23)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:03:59 [RMI TCP Connection(23)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:19 [RMI TCP Connection(23)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4

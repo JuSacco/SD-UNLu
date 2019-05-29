@@ -1,0 +1,141 @@
+14:03:56 [RMI TCP Connection(5)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 1 tareas!
+14:03:56 [RMI TCP Connection(6)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 1 tareas!
+14:03:56 [RMI TCP Connection(4)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 2 tareas!
+14:03:56 [RMI TCP Connection(13)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 2 tareas!
+14:03:56 [RMI TCP Connection(15)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 3 tareas!
+14:03:56 [RMI TCP Connection(17)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 3 tareas!
+14:03:56 [RMI TCP Connection(19)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 4 tareas!
+14:03:56 [RMI TCP Connection(21)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 4 tareas!
+14:03:57 [RMI TCP Connection(26)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 2 tareas!
+14:03:57 [RMI TCP Connection(28)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 3 tareas!
+14:03:57 [RMI TCP Connection(30)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 4 tareas!
+14:03:57 [RMI TCP Connection(32)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:57 [RMI TCP Connection(34)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:57 [RMI TCP Connection(36)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:57 [RMI TCP Connection(38)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:57 [RMI TCP Connection(39)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:57 [RMI TCP Connection(40)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(41)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(42)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(43)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(4)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:03:58 [RMI TCP Connection(4)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:58 [RMI TCP Connection(44)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(15)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:03:58 [RMI TCP Connection(15)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:58 [RMI TCP Connection(45)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(46)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:58 [RMI TCP Connection(21)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:03:58 [RMI TCP Connection(21)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:59 [RMI TCP Connection(47)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:59 [RMI TCP Connection(48)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:59 [RMI TCP Connection(49)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:59 [RMI TCP Connection(50)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:59 [RMI TCP Connection(34)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:03:59 [RMI TCP Connection(34)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:59 [RMI TCP Connection(36)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:03:59 [RMI TCP Connection(36)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:03:59 [RMI TCP Connection(51)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:03:59 [RMI TCP Connection(52)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(53)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(54)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(55)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(56)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(57)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(58)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(59)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(60)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(61)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:00 [RMI TCP Connection(62)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(63)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(64)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(65)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(66)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(67)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(68)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(69)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(70)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:01 [RMI TCP Connection(71)-192.168.56.1] INFO  - RED COMPLETA! - CLIENTE en Lista de Espera
+14:04:16 [RMI TCP Connection(5)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:04:16 [RMI TCP Connection(6)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:16 [RMI TCP Connection(13)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 3
+14:04:16 [RMI TCP Connection(66)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 4 tareas!
+14:04:16 [RMI TCP Connection(67)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:16 [RMI TCP Connection(17)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 3
+14:04:16 [RMI TCP Connection(68)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 4 tareas!
+14:04:16 [RMI TCP Connection(19)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 3
+14:04:16 [RMI TCP Connection(69)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 4 tareas!
+14:04:16 [RMI TCP Connection(70)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:17 [RMI TCP Connection(26)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:04:17 [RMI TCP Connection(28)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 3
+14:04:17 [RMI TCP Connection(30)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 2
+14:04:17 [RMI TCP Connection(32)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 1
+14:04:17 [RMI TCP Connection(38)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 2 tareas!
+14:04:17 [RMI TCP Connection(39)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 3 tareas!
+14:04:17 [RMI TCP Connection(40)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 4 tareas!
+14:04:18 [RMI TCP Connection(41)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:18 [RMI TCP Connection(4)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:18 [RMI TCP Connection(66)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:04:18 [RMI TCP Connection(44)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:18 [RMI TCP Connection(67)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 3
+14:04:18 [RMI TCP Connection(15)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 2
+14:04:18 [RMI TCP Connection(68)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:18 [RMI TCP Connection(45)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 3 tareas!
+14:04:18 [RMI TCP Connection(46)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 4 tareas!
+14:04:18 [RMI TCP Connection(21)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 3
+14:04:19 [RMI TCP Connection(47)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 4 tareas!
+14:04:19 [RMI TCP Connection(48)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:19 [RMI TCP Connection(49)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:19 [RMI TCP Connection(50)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:19 [RMI TCP Connection(34)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:04:19 [RMI TCP Connection(36)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:19 [RMI TCP Connection(38)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:04:19 [RMI TCP Connection(51)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:19 [RMI TCP Connection(39)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:04:19 [RMI TCP Connection(52)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:19 [RMI TCP Connection(40)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:04:20 [RMI TCP Connection(53)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:20 [RMI TCP Connection(54)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:20 [RMI TCP Connection(55)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:20 [RMI TCP Connection(44)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:20 [RMI TCP Connection(58)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:20 [RMI TCP Connection(45)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:04:20 [RMI TCP Connection(60)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:21 [RMI TCP Connection(48)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:04:21 [RMI TCP Connection(65)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:21 [RMI TCP Connection(49)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:21 [RMI TCP Connection(51)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:04:21 [RMI TCP Connection(52)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 3
+14:04:21 [RMI TCP Connection(71)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 4 tareas!
+14:04:22 [RMI TCP Connection(53)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 3
+14:04:22 [RMI TCP Connection(54)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 3
+14:04:22 [RMI TCP Connection(55)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 4
+14:04:22 [RMI TCP Connection(58)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 2
+14:04:22 [RMI TCP Connection(60)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 3
+14:04:23 [RMI TCP Connection(42)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 3 tareas!
+14:04:23 [RMI TCP Connection(43)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 4 tareas!
+14:04:23 [RMI TCP Connection(65)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 2
+14:04:23 [RMI TCP Connection(71)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 2
+14:04:25 [RMI TCP Connection(43)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 3
+14:04:25 [RMI TCP Connection(56)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 3 tareas!
+14:04:25 [RMI TCP Connection(57)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 3 tareas!
+14:04:25 [RMI TCP Connection(59)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9010 esta realizando: 4 tareas!
+14:04:25 [RMI TCP Connection(61)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 4 tareas!
+14:04:26 [RMI TCP Connection(62)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 4 tareas!
+14:04:26 [RMI TCP Connection(63)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9011 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:26 [RMI TCP Connection(64)-192.168.56.1] INFO  - Le asigne una tarea al NODO: localhost:9012 esta realizando: 5 tareas! ESTADO CRITICO
+14:04:27 [RMI TCP Connection(56)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 4
+14:04:27 [RMI TCP Connection(57)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 3
+14:04:27 [RMI TCP Connection(61)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 3
+14:04:28 [RMI TCP Connection(62)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 4
+14:04:28 [RMI TCP Connection(63)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 3
+14:04:28 [RMI TCP Connection(64)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 2
+14:04:36 [RMI TCP Connection(69)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 2
+14:04:36 [RMI TCP Connection(70)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 1
+14:04:38 [RMI TCP Connection(41)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 1
+14:04:38 [RMI TCP Connection(46)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 2
+14:04:39 [RMI TCP Connection(47)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 1
+14:04:39 [RMI TCP Connection(50)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9012 ,TAREAS RESTANTES: 0
+14:04:39 [RMI TCP Connection(11)-192.168.56.1] INFO  - NODOService Detenido!9012
+14:04:43 [RMI TCP Connection(42)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9011 ,TAREAS RESTANTES: 0
+14:04:45 [RMI TCP Connection(59)-192.168.56.1] INFO  - Tarea FINALIZADA nodo: localhost:9010 ,TAREAS RESTANTES: 0

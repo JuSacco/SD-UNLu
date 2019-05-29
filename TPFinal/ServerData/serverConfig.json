@@ -1,0 +1,21 @@
+{
+  "workers": [
+              "localhost:9010",
+              "localhost:9011",
+              "localhost:9012"
+            ],
+  "queue": {
+  			  "ip":"192.168.0.108",
+  			  "port":"5672",
+  			  "user":"admin",
+  			  "pass":"admin"
+  			  },
+  "rmi": {
+  			 "port":"9000"
+  },
+  "ftp":{
+  			 "directory" : "\\ftp\\",	
+  			 "port" : "2121"
+  }		 
+  	
+}

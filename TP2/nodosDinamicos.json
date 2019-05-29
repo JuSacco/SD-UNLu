@@ -2,6 +2,13 @@
   "nodos": [
               "localhost:9010",
               "localhost:9011",
-              "localhost:9012"
+              "localhost:9014",
+              "localhost:9015",
+              "localhost:9016",
+              "localhost:9017",
+              "localhost:9018",
+              "localhost:9019",
+              "localhost:9020",
+              "localhost:9021"
             ]
 }

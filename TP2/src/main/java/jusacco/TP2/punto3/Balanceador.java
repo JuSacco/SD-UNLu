@@ -185,7 +185,7 @@ public class Balanceador{
 		try {
 			direccion = asignarTarea();
 			int port = partirDireccion(direccion);
-			if(port == PUERTO_LOCAL)
+			if(port == PUERTO_LOCAL) 
 				log.info("RED COMPLETA! - CLIENTE en Lista de Espera");
 			while (port==PUERTO_LOCAL) {
 				Thread.sleep(5000);
