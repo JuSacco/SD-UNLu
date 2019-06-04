@@ -89,6 +89,7 @@ public class Worker {
 		if(checkNeededFiles()) {
 			log.info("<-- [STEP 6] - ESPERANDO TRABAJOS		      -->");
 			getWork();
+			log.info("<-- [STEP 7] - QUEDAR OCIOSO			      -->");
 		}else {
 			log.debug("Error inesperado!");
 		}
@@ -124,7 +125,7 @@ public class Worker {
 			    while (sc.hasNextLine()) {
 			    	String line = sc.nextLine();
 			    	if(line.contains("$myPath")) {
-			    		script.println("bpy.data.scenes[\"Scene\"].render.filepath = \""+this.myRenderedImages+"\"");
+			    		script.println("bpy.data.scenes[\"Scene\"].render.filepath = '"+this.myRenderedImages.replace("\\", "\\\\")+"'");
 			    	}else {
 				    	script.println(line);
 			    	}
@@ -159,31 +160,31 @@ public class Worker {
 
 	private void getWork() {
 		boolean salir = false;
-		while(!salir) {
-			try {
+		try {
+			while(!salir) {
 				if(this.queueChannel.messageCount(this.queueTrabajo) > 0) {
 					GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
 					Mensaje msg = Mensaje.getMensaje(gr.getBody());
 					this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
 					persistBlendFile(msg.getBlend(), msg.getName());
 					if(msg.getCantidadSamples() > 0)
-						startRenderSamples(msg.getName(), msg.getCantidadSamples());
+						startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender());
 					else
-						startRenderTime(msg.getName(), msg.getTiempoLimite());
+						startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender());
 					salir = true;
+					log.debug("Salio linea 174");
 				}
-			} catch (Exception e) {
-				//e.printStackTrace();
-				try {
-					Thread.sleep(1000);
-					getWork();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				
 			}
+		} catch (Exception e) {
+			//e.printStackTrace();
+			try {
+				Thread.sleep(1000);
+				getWork();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			
 		}
-		
 	}
 
 
@@ -212,15 +213,15 @@ public class Worker {
 			e.printStackTrace();
 		}
 	}
-	private void startRenderSamples(String name, int maxSample) {
+	private void startRenderSamples(String name, int cantidadSamples, int nroFrame) {
 		// blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
 		int i = 1;
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
-		String frames = "-f ";
+		String frames = "-f "+nroFrame;
 		//String fromTo = "-s "+this.MIN_FRAME+" -e "+maxSample+" -a";
 		String useExtension = "-x 1";
 		String pyScript = "-P "+this.myDirectory+"defaultRenderOptions.py";
-		//String output = "-o "+this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
+		String pyRandScript = "-P "+this.myDirectory+"/randomSeed.py";
 		
 		File finishedWorkFolder = new File(this.myRenderedImages);
 		if(finishedWorkFolder.exists() && finishedWorkFolder.isDirectory()) {
@@ -228,10 +229,21 @@ public class Worker {
 			log.info("Pre-configurando el archivo .blend");
 			String cmd = " -b \""+blendToRender+"\" "+pyScript;
 			File f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
+			
+
+			String cmdRnd = " -b \""+blendToRender+"\" "+pyRandScript;
+			File fRnd = new File (this.myBlenderApp+cmdRnd);//Normalize backslashs and slashs
+			
 			System.out.println("CMD: "+ f.getPath());
 			ejecutar(f.getPath());
-			while(i<=maxSample) {
-				cmd = " -b \""+blendToRender+"\" "+useExtension+" "+frames+i;
+			//Start render
+			while(i<=cantidadSamples) {
+				//Calculo una semilla random para tener diferente nivel de ruido.
+				log.info("Calculando Seed Random");
+				ejecutar(fRnd.getPath());
+				//---------------------
+				String output = "-o \""+this.myRenderedImages+"/"+i+" from frame \"";
+				cmd = " -b \""+blendToRender+"\" "+output+" "+useExtension+" "+frames;
 				i++;
 				f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
 				System.out.println("CMD: "+ f.getPath());
@@ -245,20 +257,21 @@ public class Worker {
 					e.printStackTrace();
 				}
 			}
+			log.info("==========Termine=========");
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderSamples(name,maxSample);
+			startRenderSamples(name,cantidadSamples,nroFrame);
 		}
 	}
 
-	private void startRenderTime(String name, int timeLimit) {
+	private void startRenderTime(String name, int timeLimit, int frameToRender) {
 		// blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
 		
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
-		String frames = "-f ";
+		String frames = "-f "+frameToRender;
 		String useExtension = "-x 1";
 		String pyScript = "-P "+this.myDirectory+"/defaultRenderOptions.py";
-		//String output = "-o "+this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
+		String pyRandScript = "-P "+this.myDirectory+"/randomSeed.py";
 		int i = 1;
 		File finishedWorkFolder = new File(this.myRenderedImages);
 		if(finishedWorkFolder.exists() && finishedWorkFolder.isDirectory()) {
@@ -266,6 +279,10 @@ public class Worker {
 			log.info("Pre-configurando el archivo .blend");
 			String cmd = " -b \""+blendToRender+"\" "+pyScript;
 			File f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
+			
+			String cmdRnd = " -b \""+blendToRender+"\" "+pyRandScript;
+			File fRnd = new File (this.myBlenderApp+cmdRnd);//Normalize backslashs and slashs
+			
 			System.out.println("CMD: "+ f.getPath());
 			ejecutar(f.getPath());
 			log.info("Iniciando el renderizado...");
@@ -273,7 +290,12 @@ public class Worker {
 			long estimatedRenderTime = 0;
 			boolean termino = false;
 			while(!termino) {
-				cmd = " -b \""+blendToRender+"\" "+useExtension+" "+frames+i;
+				//Calculo una semilla random para tener diferente nivel de ruido.
+				log.info("Calculando Seed Random");
+				ejecutar(fRnd.getPath());
+				//------------------
+				String output = "-o \""+this.myRenderedImages+"/"+i+" from frame \"";
+				cmd = " -b \""+blendToRender+"\" "+output+" "+useExtension+" "+frames;
 				i++;
 				f = new File (this.myBlenderApp+cmd);//Normalize backslashs and slashs
 				LocalTime now = LocalTime.now();
@@ -298,7 +320,7 @@ public class Worker {
 			}
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderSamples(name, timeLimit);
+			startRenderSamples(name, timeLimit,frameToRender);
 		}
 		
 	}

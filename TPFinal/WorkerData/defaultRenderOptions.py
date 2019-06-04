@@ -3,7 +3,7 @@ import bpy
 
 bpy.data.scenes["Scene"].cycles.progressive = 'PATH'
 bpy.data.scenes["Scene"].cycles.use_square_samples = 0
-bpy.data.scenes["Scene"].cycles.samples = 5
+bpy.data.scenes["Scene"].cycles.samples = 15
 bpy.data.scenes["Scene"].cycles.preview_samples = 0
 bpy.data.scenes["Scene"].cycles.light_sampling_threshold = 0
 bpy.data.scenes["Scene"].cycles.use_animated_seed = 1
@@ -36,7 +36,7 @@ bpy.data.scenes["Scene"].render.resolution_percentage = 100
 bpy.data.scenes["Scene"].frame_start = 1
 bpy.data.scenes["Scene"].frame_end = 250
 
-bpy.data.scenes["Scene"].render.filepath = $myPath
+bpy.data.scenes["Scene"].render.filepath = 'C:\\Users\\sacco\\eclipse-workspace\\TPFinal/WorkerData//RenderedImages/'
 bpy.data.scenes["Scene"].cycles_curves.use_overwrite = 0
 bpy.data.scenes["Scene"].render.image_settings.color_mode = 'RGB'
 bpy.data.scenes["Scene"].render.image_settings.color_depth = '16'

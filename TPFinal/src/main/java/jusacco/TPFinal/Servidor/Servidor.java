@@ -186,7 +186,8 @@ public class Servidor implements IClient{
 			    		}
 			    		if(renderedImages.size()>0 && workers.isEmpty()) {
 			    			salir = true;
-			    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
+			    			this.queueChannel.basicGet(this.queueTrabajo, true);
+			    			//this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
 			    		}
 					}catch (Exception e) {
 						

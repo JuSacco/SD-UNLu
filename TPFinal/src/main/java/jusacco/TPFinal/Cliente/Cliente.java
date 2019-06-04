@@ -58,12 +58,12 @@ public class Cliente{
 	public void setTipoRender(int tipo) {
 		this.tipoRender = tipo;
 	}
-	public String enviarFile(int i) {
+	public String enviarFile(int i, int noFrame) {
 		connectRMI(serverIp, serverPort);
 		if(this.file != null) {
 			if(this.tipoRender == 0) { //0 = por sample ; 1 = por tiempo
 				log.info("Enviando el archivo: "+this.file.getName());
-				Mensaje m = new Mensaje(this.fileContent, file.getName(),i);
+				Mensaje m = new Mensaje(this.fileContent, file.getName(),i, noFrame);
 				try {
 					Imagen returned = this.stub.renderRequest(m);
 					returned.persistImg("./resultado.png");
@@ -73,14 +73,14 @@ public class Cliente{
 					try {
 						Thread.sleep(5000);
 						log.info("Reintentando enviar "+this.file.getName());
-						enviarFile(i);
+						enviarFile(i, noFrame);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
 			}else {
 				log.info("Enviando el archivo: "+this.file.getName());
-				Mensaje m = new Mensaje(this.fileContent, i, file.getName());
+				Mensaje m = new Mensaje(this.fileContent, i, file.getName(),noFrame);
 				try {
 					Imagen returned = this.stub.renderRequest(m);
 					returned.persistImg("./resultado.png");

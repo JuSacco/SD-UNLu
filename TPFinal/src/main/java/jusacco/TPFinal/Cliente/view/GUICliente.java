@@ -21,7 +21,9 @@ public class GUICliente  extends OutputStream implements ActionListener  {
 	JTextArea textArea;
 	JLabel labelSeg;
 	JLabel labelSam;
+	JLabel labelFrame;
 	JFormattedTextField cantidad;
+	JFormattedTextField nroFrame;
 	JPanel panel;
 	JComboBox<String> comboBox;
 	JFileChooser fc;
@@ -58,15 +60,21 @@ public class GUICliente  extends OutputStream implements ActionListener  {
         mb.add(labelCombo);
         mb.add(comboBox);
         cantidad = new JFormattedTextField(new Integer(10));
+        nroFrame = new JFormattedTextField(new Integer(10));
         cantidad.setPreferredSize(new Dimension(100,25));
+        nroFrame.setPreferredSize(new Dimension(100,25));
         labelSeg = new JLabel("Segundos");
         labelSam = new JLabel("Samples");
+        labelFrame = new JLabel("Nro. Frame");
         labelSeg.setPreferredSize(new Dimension(100,25));
         labelSam.setPreferredSize(new Dimension(100,25));
+        labelFrame.setPreferredSize(new Dimension(70,25));
         mb.add(cantidad);
         mb.add(labelSeg);
         labelSeg.setVisible(false);
         mb.add(labelSam);
+        mb.add(labelFrame);
+        mb.add(nroFrame);
         
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -114,10 +122,17 @@ public class GUICliente  extends OutputStream implements ActionListener  {
 		 }
 		 if (e.getSource() == this.btnStart) {
 			 int value = Integer.valueOf(this.cantidad.getText().replace(".", ""));
-			 if(value > 0 ) {
-				 this.frame.setTitle("Procesando...");
-				 String str = this.controlador.enviarFile(value);
-				 new JDialog().add(new JLabel(str));
+			 int noFrame = Integer.valueOf(this.nroFrame.getText().replace(".", ""));
+			
+			 if(value > 0) {
+				 if(noFrame > 250) {
+					 this.textArea.append("ERROR: El numero de frame no puede ser mayor a 250.\n");
+					 this.nroFrame.setText("250");
+				 }else {
+					 this.frame.setTitle("Procesando...");
+					 String str = this.controlador.enviarFile(value,noFrame);
+					 new JDialog().add(new JLabel(str));
+				 }
 			 }else {
 				 this.textArea.append("ERROR: La cantidad de samples / segundos debe ser mayor a 0.\n");
 			 }

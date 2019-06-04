@@ -23,17 +23,20 @@ public class Mensaje implements Serializable{
 	byte[] bufferedImg;
 	int cantidadSamples = 0;
 	int tiempoLimite = 0;
+	int frameToRender = 1;
 	String from;
 	
-	public Mensaje(byte[] blend, String name, int cantidadSamples){
+	public Mensaje(byte[] blend, String name, int cantidadSamples, int frameToRender){
 		this.blend = blend;
 		this.cantidadSamples = cantidadSamples;
+		this.frameToRender = frameToRender;
 		this.name = name;
 	}
 
-	public Mensaje(byte[] blend,int tiempoLimite, String name){
+	public Mensaje(byte[] blend,int tiempoLimite, String name, int frameToRender){
 		this.blend = blend;
 		this.tiempoLimite = tiempoLimite;
+		this.frameToRender = frameToRender;
 		this.name = name;
 	}
 	
@@ -105,5 +108,13 @@ public class Mensaje implements Serializable{
 
 	public void setTiempoLimite(int tiempoLimite) {
 		this.tiempoLimite = tiempoLimite;
+	}
+
+	public int getFrameToRender() {
+		return frameToRender;
+	}
+
+	public void setFrameToRender(int frameToRender) {
+		this.frameToRender = frameToRender;
 	}
 }
