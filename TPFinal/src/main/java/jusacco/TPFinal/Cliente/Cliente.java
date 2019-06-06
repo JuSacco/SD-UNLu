@@ -3,6 +3,8 @@ package jusacco.TPFinal.Cliente;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -63,7 +65,13 @@ public class Cliente{
 		if(this.file != null) {
 			if(this.tipoRender == 0) { //0 = por sample ; 1 = por tiempo
 				log.info("Enviando el archivo: "+this.file.getName());
-				Mensaje m = new Mensaje(this.fileContent, file.getName(),i, noFrame);
+				String myIp = "";
+				try {
+					myIp = Inet4Address.getLocalHost().getHostAddress();
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+				Mensaje m = new Mensaje(this.fileContent, file.getName(),i, noFrame,myIp);
 				try {
 					Imagen returned = this.stub.renderRequest(m);
 					returned.persistImg("./resultado.png");
@@ -80,7 +88,13 @@ public class Cliente{
 				}
 			}else {
 				log.info("Enviando el archivo: "+this.file.getName());
-				Mensaje m = new Mensaje(this.fileContent, i, file.getName(),noFrame);
+				String myIp = "";
+				try {
+					myIp = Inet4Address.getLocalHost().getHostAddress();
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+				Mensaje m = new Mensaje(this.fileContent, i, file.getName(),noFrame,myIp);
 				try {
 					Imagen returned = this.stub.renderRequest(m);
 					returned.persistImg("./resultado.png");

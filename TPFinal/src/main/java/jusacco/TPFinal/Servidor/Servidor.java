@@ -7,11 +7,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -21,19 +19,16 @@ import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.GetResponse;
-import com.rabbitmq.client.MessageProperties;
 
 import jusacco.TPFinal.Cliente.Imagen;
 import jusacco.TPFinal.Servidor.Tools.*;
 
 public class Servidor implements IClient{
 	//General settings
-	private final int CORTE = 10;
 	Logger log = LoggerFactory.getLogger(Servidor.class);
 	String myDirectory = System.getProperty("user.dir")+"\\ServerData\\";
-	private String ip;
-	private int rmiPort;
+	private int rmiPortCli;
+	private int rmiPortSv;
 	
 	//Ftp Related
 	String myFTPDirectory;
@@ -50,8 +45,8 @@ public class Servidor implements IClient{
 	private String queueTrabajo = "queueTrabajo";
 	private String queueTerminados = "queueTerminados";
 	
-	//Workers knowledge. Just a list, need ping to know if are on or off. Why I use this list? 
-	private ArrayList<String> listaWorkers;
+	private ArrayList<String> listaWorkers = new ArrayList<String>();
+	private ArrayList<String> listaTrabajos = new ArrayList<String>();
 	private String queuePort;
 	
 	public Servidor() {
@@ -66,11 +61,14 @@ public class Servidor implements IClient{
 	
 	private void runRMIServer() throws RemoteException {
 		log.info("Levantando servidor RMI...");
-		Registry registry = LocateRegistry.createRegistry(this.rmiPort);
+		Registry registryCli = LocateRegistry.createRegistry(this.rmiPortCli);
+		Registry registrySv = LocateRegistry.createRegistry(this.rmiPortSv);
 		IFTPManager remote = (IFTPManager) UnicastRemoteObject.exportObject(new FTPManager(this.ftpPort, this.ftp),0);
 		IClient remoteClient = (IClient) UnicastRemoteObject.exportObject(this,0);
-		registry.rebind("Acciones", remote);
-		registry.rebind("client", remoteClient);
+		IWorkerAction remoteWorker = (IWorkerAction) UnicastRemoteObject.exportObject(new WorkerAction(this.listaWorkers, this.listaTrabajos),0);
+		registrySv.rebind("Acciones", remote);
+		registrySv.rebind("server", remoteWorker);
+		registryCli.rebind("client", remoteClient);
 		log.info("Servidor RMI: ON");
 	}
 	
@@ -81,7 +79,8 @@ public class Servidor implements IClient{
 		try {
 			config = gson.fromJson(new FileReader(myDirectory+"serverConfig.json"), Map.class);
 			Map data = (Map) config.get("rmi");
-			this.rmiPort = Integer.valueOf(data.get("port").toString());
+			this.rmiPortCli = Integer.valueOf(data.get("portCli").toString());
+			this.rmiPortSv = Integer.valueOf(data.get("portSv").toString());
 			
 			data = (Map) config.get("ftp");
 			this.ftpPort = Integer.valueOf(data.get("port").toString());
@@ -92,9 +91,6 @@ public class Servidor implements IClient{
 			this.queuePort = data.get("port").toString();
 			this.queueUser = data.get("user").toString();
 			this.queuePwd = data.get("pass").toString();
-			
-			ArrayList<String> workerData = (ArrayList) config.get("workers");
-			this.listaWorkers = workerData;
 			
 		} catch (IOException e) {
 			log.info("Error Archivo Config!");
@@ -137,9 +133,8 @@ public class Servidor implements IClient{
 		}
 		
 		//FTP RELATED
-		System.out.println(this.myFTPDirectory);
 		this.ftp = new ServerFtp(this.ftpPort, this.myFTPDirectory);
-		log.info("FTP Configurado correctamente. Corriendo en "+this.ftpPort+". Compartiendo "+this.myFTPDirectory);
+		log.info("FTP Configurado correctamente. Listo para usar en puerto:"+this.ftpPort+". Compartiendo carpeta: "+this.myFTPDirectory);
 	}
 
 	public static void main(String[] args) {
@@ -148,76 +143,27 @@ public class Servidor implements IClient{
 
 	@Override
 	public Imagen renderRequest(Mensaje msg) throws RemoteException {
-	    boolean salir = false;
-		ArrayList<BufferedImage> renderedImages = new ArrayList<BufferedImage>();
-		LocalTime initTime = LocalTime.now();
-		boolean porSamples = msg.cantidadSamples > 0;
-		if(porSamples)
-			log.info("Obteniendo trabajo. Modalidad: Por samples. Cantidad: "+msg.cantidadSamples);
-		else
-			log.info("Obteniendo trabajo. Modalidad: Por tiempo. Cantidad: "+msg.tiempoLimite+" segundos");
-		log.info("Tiempo inicio:\t"+initTime.toString());
-		try {
-			this.queueChannel.basicPublish("", this.queueTrabajo, MessageProperties.PERSISTENT_TEXT_PLAIN, msg.getBytes());
-			//For obtain DeliveryTag
-			GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
-			this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
-			if(porSamples) {//Entonces cada worker hace X cantidad de samples
-				Map<String,Integer> workers = new HashMap<String,Integer>();
-				while(!salir) {
-					try {
-						byte[] data = this.queueChannel.basicGet(this.queueTerminados, false).getBody();
-			    		Mensaje m = Mensaje.getMensaje(data);
-			    		if(m.name.contentEquals(msg.name)) {
-			    			renderedImages.add(Imagen.ByteArrToBuffImg(m.bufferedImg));
-			    			if(workers.containsKey(m.from)) {
-			    				int count = workers.get(m.from);
-			    				workers.put(m.from, count + 1);
-			    			}else {
-			    				workers.put(m.from, 1);
-			    			}
-			    		}
-			    		for (String key: workers.keySet()) {
-			    		    System.out.println("Worker : " + key);
-			    		    System.out.println("Render : " + workers.get(key));
-			    		    if(workers.get(key) == msg.cantidadSamples) {
-			    		    	workers.remove(key);
-			    		    }
-			    		}
-			    		if(renderedImages.size()>0 && workers.isEmpty()) {
-			    			salir = true;
-			    			this.queueChannel.basicGet(this.queueTrabajo, true);
-			    			//this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
-			    		}
-					}catch (Exception e) {
-						
-					}
-				}
-			}else {//Cada worker opera X cantidad de tiempo
-				try {
-					Thread.sleep(msg.tiempoLimite * 1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				int terminados = (int) this.queueChannel.messageCount(this.queueTerminados);
-				synchronized (this.queueConnection) {
-			    	for (int i = 0; i < terminados; i++) {
-			    		byte[] data = this.queueChannel.basicGet(this.queueTerminados, false).getBody();
-			    		Mensaje m = Mensaje.getMensaje(data);
-			    		if(m.name.contentEquals(msg.name))
-			    			renderedImages.add(Imagen.ByteArrToBuffImg(m.bufferedImg));
-					}
-				}
+		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+		log.debug("Current thread launcheds: "+threadSet.toString());
+		BufferedImage respuesta = null;
+		this.listaTrabajos.add(msg.getName()+":"+msg.ipCliente);
+		ThreadServer thServer = new ThreadServer(msg, listaWorkers, respuesta, this.queueChannel, this.queueConnection);
+		Thread th = new Thread(thServer);
+		th.start();
+		while(thServer.getRespuesta() == null) {
+			try {
+				Thread.sleep(10000);
+				log.debug("Durmiendo...");
+				log.debug("Lista trabajo: "+this.listaTrabajos.toString());
+				log.debug("this.listaTrabajos.contains(msg.getName()+\":\"+msg.ipCliente): "+this.listaTrabajos.contains(msg.getName()+":"+msg.ipCliente));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			log.info("Cantidad de imagenes:\t"+renderedImages.size());
-			BufferedImage result = ImageStacker.aplicarFiltroStack(renderedImages);
-			log.info("endTime aplicarFilto:\t"+LocalTime.now().toString());
-		    log.info("Delta time aplicarFilto:\t"+Duration.between(initTime, LocalTime.now()));
-			return new Imagen(result);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-		return null;
+		this.listaTrabajos.remove(0);//Experimental 
+		th.interrupt();
+		return new Imagen(thServer.getRespuesta());
 	}
+
 
 }

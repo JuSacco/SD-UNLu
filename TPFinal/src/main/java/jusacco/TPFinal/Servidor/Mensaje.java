@@ -25,19 +25,24 @@ public class Mensaje implements Serializable{
 	int tiempoLimite = 0;
 	int frameToRender = 1;
 	String from;
-	
-	public Mensaje(byte[] blend, String name, int cantidadSamples, int frameToRender){
+	String ipCliente;
+
+	//Mensaje enviado por el cliente
+	public Mensaje(byte[] blend, String name, int cantidadSamples, int frameToRender, String ipCliente){
 		this.blend = blend;
 		this.cantidadSamples = cantidadSamples;
 		this.frameToRender = frameToRender;
 		this.name = name;
+		this.ipCliente = ipCliente;
 	}
-
-	public Mensaje(byte[] blend,int tiempoLimite, String name, int frameToRender){
+	
+	//Mensaje enviado por el cliente
+	public Mensaje(byte[] blend,int tiempoLimite, String name, int frameToRender, String ipCliente){
 		this.blend = blend;
 		this.tiempoLimite = tiempoLimite;
 		this.frameToRender = frameToRender;
 		this.name = name;
+		this.ipCliente = ipCliente;
 	}
 	
 	public Mensaje(BufferedImage bufferedImg, String name, String from){

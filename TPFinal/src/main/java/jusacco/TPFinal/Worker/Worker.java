@@ -34,6 +34,7 @@ import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.MessageProperties;
 
 import jusacco.TPFinal.Servidor.IFTPManager;
+import jusacco.TPFinal.Servidor.IWorkerAction;
 import jusacco.TPFinal.Servidor.Mensaje;
 import jusacco.TPFinal.Worker.Tools.ClientFTP;
 import jusacco.TPFinal.Worker.Tools.DirectoryTools;
@@ -63,9 +64,9 @@ public class Worker {
 	String myBlenderApp;
 	String myRenderedImages;
 	String localIp;
-	int localPort;
+	IWorkerAction stubServer;
 	//ftp
-	IFTPManager stub;
+	IFTPManager stubFtp;
 	ClientFTP cliFtp;
 	int serverFTPPort;
 	//server
@@ -74,6 +75,7 @@ public class Worker {
 	//Rendering CONST
 	final int MIN_FRAME = 1;
 	final int MAX_FRAME = 250;
+	private String lastWork = "";
 	
 	
 	public Worker() {
@@ -97,22 +99,7 @@ public class Worker {
 	
 	private void prepareWorkplace() {
 		log.info("Borrando los archivos ya existentes en las carpetas temporales.");
-		for(String toErase : getFiles(myBlendDirectory)) {
-			File f = new File(myBlendDirectory+"/"+toErase);
-			 if(f.delete()){
-				 System.out.println(myBlendDirectory+toErase+" -> Eliminado.");
-		     }else {
-		    	 System.out.println(myBlendDirectory+toErase+" -> No existe, o no se puede eliminar.");
-		     }
-		}	
-		for(String toErase : getFiles(myRenderedImages)) {
-			File f = new File(myRenderedImages+"/"+toErase);
-			 if(f.delete()){
-				 System.out.println(myRenderedImages+toErase+" -> Eliminado.");
-		     }else {
-		    	 System.out.println(myRenderedImages+toErase+" -> No existe, o no se puede eliminar.");
-		     }
-		}
+		borrarTemporales();
 		if(!(new File(this.myDirectory+"defaultRenderOptions.py").exists())) {
 			log.info("Creando Script Python...");
 			try {
@@ -137,6 +124,25 @@ public class Worker {
 		}
 	}
 
+	private void borrarTemporales() {
+		for(String toErase : getFiles(myBlendDirectory)) {
+			File f = new File(myBlendDirectory+"/"+toErase);
+			 if(f.delete()){
+				 System.out.println(myBlendDirectory+toErase+" -> Eliminado.");
+		     }else {
+		    	 System.out.println(myBlendDirectory+toErase+" -> No existe, o no se puede eliminar.");
+		     }
+		}	
+		for(String toErase : getFiles(myRenderedImages)) {
+			File f = new File(myRenderedImages+"/"+toErase);
+			 if(f.delete()){
+				 System.out.println(myRenderedImages+toErase+" -> Eliminado.");
+		     }else {
+		    	 System.out.println(myRenderedImages+toErase+" -> No existe, o no se puede eliminar.");
+		     }
+		}
+	}
+
 	private void getQueueConn() {
 		//QUEUE RELATED
 		try {
@@ -157,7 +163,7 @@ public class Worker {
 			log.error("Error: RabbitMQ Connection Time out.");
 		}
 	}
-
+/* OLD
 	private void getWork() {
 		boolean salir = false;
 		try {
@@ -186,8 +192,54 @@ public class Worker {
 			
 		}
 	}
+*/
 
-
+	private void getWork() {
+		boolean salir = false;
+		boolean trabajoNuevo = false;
+		while(true) {
+			try {
+				String trabajo = this.stubServer.giveWorkToDo(localIp);
+				if(!trabajo.contentEquals(lastWork)) {
+					trabajoNuevo = true;
+					salir = false;
+				}
+				while(!salir && trabajoNuevo) {
+					if(this.queueChannel.messageCount(this.queueTrabajo) > 0) {
+						GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
+						Mensaje msg = Mensaje.getMensaje(gr.getBody());
+						this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
+						if(!trabajo.contentEquals(this.lastWork)) {
+							if(trabajo.split(":")[0].contentEquals(msg.getName())) {
+								persistBlendFile(msg.getBlend(), msg.getName());
+								if(msg.getCantidadSamples() > 0)
+									startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender());
+								else
+									startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender());
+								this.lastWork = trabajo;
+								borrarTemporales();
+								trabajoNuevo = false;
+								salir = true;
+							}
+						}else {
+							salir = true;
+							trabajoNuevo = false;
+						}
+					}
+				}
+			} catch (Exception e) {
+				//e.printStackTrace();
+				try {
+					Thread.sleep(1000);
+					getWork();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		}
+	}
+	
 	private void persistBlendFile(byte[] byteBlend, String name) {
 		File folder = new File(this.myBlendDirectory);
 		if(folder.exists() && folder.isDirectory()) {
@@ -252,7 +304,7 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp+":"+this.localPort).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp).getBytes());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -308,7 +360,7 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp+":"+this.localPort).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp).getBytes());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -371,13 +423,13 @@ public class Worker {
 	private ClientFTP connectFTP() {
 		try {
 			log.info("Iniciando servidor FTP.");
-			this.serverFTPPort = this.stub.getFTPPort();
+			this.serverFTPPort = this.stubFtp.getFTPPort();
 			ClientFTP cliFtp = null;
-			if(this.stub.startFTPServer() > 0) {
+			if(this.stubFtp.startFTPServer() > 0) {
 				log.info("El servidor FTP fue iniciado correctamente");
 				cliFtp = new ClientFTP(serverIp, serverFTPPort);
 			}else{
-				boolean recuperado = this.stub.resumeFTPServer();
+				boolean recuperado = this.stubFtp.resumeFTPServer();
 				log.error("El servidor FTP ya estaba iniciado. Intentando establecer comunicacion: "+recuperado);
 				if(recuperado) {
 					cliFtp = new ClientFTP(serverIp, serverFTPPort);
@@ -396,7 +448,11 @@ public class Worker {
 			Registry clienteRMI = LocateRegistry.getRegistry(this.serverIp,serverPort);
 			log.info("Obteniendo servicios RMI.");
 			log.info("Obteniendo stub...");
-			this.stub = (IFTPManager) clienteRMI.lookup("Acciones"); 
+			this.stubFtp = (IFTPManager) clienteRMI.lookup("Acciones"); 
+			this.stubServer = (IWorkerAction) clienteRMI.lookup("server");
+			//DEBUG
+			log.debug(this.localIp);
+			this.stubServer.helloServer(this.localIp);
 		} catch (RemoteException | NotBoundException e) {
 			log.error("RMI Error: "+e.getMessage());
 			log.info("Re-intentando conectar a "+this.serverIp+":"+this.serverPort);
@@ -487,7 +543,7 @@ public class Worker {
 					this.cliFtp.downloadDirectory(this.cliFtp.getClient(), "/blender-"+so+"/", "",myAppDir);
 				}
 				this.cliFtp.closeConn();
-				this.stub.stopFTPServer();
+				this.stubFtp.stopFTPServer();
 			}else {
 				log.error("Hubo un problema con el servidor FTP");
 			}
