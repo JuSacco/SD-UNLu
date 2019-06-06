@@ -73,8 +73,7 @@ public class ThreadServer implements Runnable {
 				    			}
 				    		}
 				    		for (String key: workers.keySet()) {
-				    		    System.out.println("Worker : " + key);
-				    		    System.out.println("Render : " + workers.get(key));
+				    		    System.out.println("Worker: " + key + "Render count: " + workers.get(key) + " @ " + msg.getName()+":"+msg.ipCliente);
 				    		    if(workers.get(key) == msg.cantidadSamples) {
 				    		    	workers.remove(key);
 				    		    }

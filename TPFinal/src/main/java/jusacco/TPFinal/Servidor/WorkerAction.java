@@ -2,6 +2,8 @@ package jusacco.TPFinal.Servidor;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +25,24 @@ public class WorkerAction implements IWorkerAction{
 	}
 
 	@Override
-	public String giveWorkToDo(String worker) throws RemoteException {
-		while(this.listaTrabajos.size() == 0) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	public String giveWorkToDo(String worker, ArrayList<String> realizedWorks) throws RemoteException {
+		String result = "";
+		boolean salir = false;
+		Set<String> a = new HashSet<>(listaTrabajos);
+	    Set<String> b = new HashSet<>(listaWorkers);
+		while(!salir) {
+		    for (String el: a) {
+		      if (!b.contains(el)) {
+		    	 result = el;
+		         break;
+		      }
+		    }
+		    if(!result.isEmpty()) {
+		    	salir = true;
+		    }else {
+		    	a = new HashSet<>(listaTrabajos);
+		    }
 		}
-		return this.listaTrabajos.get(0);
+		return result;
 	}
 }

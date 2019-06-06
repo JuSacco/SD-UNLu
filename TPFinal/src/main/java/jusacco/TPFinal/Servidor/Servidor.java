@@ -152,15 +152,16 @@ public class Servidor implements IClient{
 		th.start();
 		while(thServer.getRespuesta() == null) {
 			try {
-				Thread.sleep(10000);
-				log.debug("Durmiendo...");
+				Thread.sleep(5000);
+				log.debug("----"+Thread.currentThread()+"----");
 				log.debug("Lista trabajo: "+this.listaTrabajos.toString());
-				log.debug("this.listaTrabajos.contains(msg.getName()+\":\"+msg.ipCliente): "+this.listaTrabajos.contains(msg.getName()+":"+msg.ipCliente));
+				log.debug("Realizando trabajo: "+msg.getName());
+				log.debug("----------------------------------");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		this.listaTrabajos.remove(0);//Experimental 
+		this.listaTrabajos.remove(msg.getName()+":"+msg.ipCliente);//Experimental 
 		th.interrupt();
 		return new Imagen(thServer.getRespuesta());
 	}

@@ -75,7 +75,7 @@ public class Worker {
 	//Rendering CONST
 	final int MIN_FRAME = 1;
 	final int MAX_FRAME = 250;
-	private String lastWork = "";
+	private ArrayList<String> realizedWorks = new ArrayList<String>();
 	
 	
 	public Worker() {
@@ -195,35 +195,26 @@ public class Worker {
 */
 
 	private void getWork() {
-		boolean salir = false;
-		boolean trabajoNuevo = false;
+		boolean salir;
 		while(true) {
 			try {
-				String trabajo = this.stubServer.giveWorkToDo(localIp);
-				if(!trabajo.contentEquals(lastWork)) {
-					trabajoNuevo = true;
-					salir = false;
-				}
-				while(!salir && trabajoNuevo) {
+				salir = false;
+				String trabajo = this.stubServer.giveWorkToDo(localIp, this.realizedWorks);//Deberia quedar colgado aca hasta tener un nuevo trabajo
+				while(!salir) {
 					if(this.queueChannel.messageCount(this.queueTrabajo) > 0) {
 						GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
 						Mensaje msg = Mensaje.getMensaje(gr.getBody());
 						this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
-						if(!trabajo.contentEquals(this.lastWork)) {
-							if(trabajo.split(":")[0].contentEquals(msg.getName())) {
-								persistBlendFile(msg.getBlend(), msg.getName());
-								if(msg.getCantidadSamples() > 0)
-									startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender());
-								else
-									startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender());
-								this.lastWork = trabajo;
-								borrarTemporales();
-								trabajoNuevo = false;
-								salir = true;
-							}
-						}else {
+						if(trabajo.split(":")[0].contentEquals(msg.getName())) {
+							persistBlendFile(msg.getBlend(), msg.getName());
+							if(msg.getCantidadSamples() > 0)
+								startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender());
+							else
+								startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender());
+							this.realizedWorks.add(trabajo);
+							Thread.sleep(30000);
+							borrarTemporales();
 							salir = true;
-							trabajoNuevo = false;
 						}
 					}
 				}
