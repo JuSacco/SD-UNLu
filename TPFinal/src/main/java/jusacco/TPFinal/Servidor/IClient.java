@@ -8,6 +8,6 @@ import jusacco.TPFinal.Cliente.Imagen;
 
 public interface IClient extends Remote{
 
-	public Imagen renderRequest(Mensaje msg) throws RemoteException;;
-
+	public Imagen renderRequest(Mensaje msg) throws RemoteException;
+	public String helloFromClient(String clientIp)throws RemoteException;
 }

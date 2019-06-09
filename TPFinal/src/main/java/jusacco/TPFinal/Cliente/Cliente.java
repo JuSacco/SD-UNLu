@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.gson.Gson;
 
@@ -31,6 +32,7 @@ public class Cliente{
 	
 	public Cliente() {
 		readConfigFile();
+		MDC.put("log.name", Cliente.class.getSimpleName().toString());
 	}
 	
 	public void connectRMI(String ip, int port) {
@@ -68,16 +70,20 @@ public class Cliente{
 				String myIp = "";
 				try {
 					myIp = Inet4Address.getLocalHost().getHostAddress();
-				} catch (UnknownHostException e1) {
+					log.info("Conexion con el servidor: "+this.stub.helloFromClient(myIp));
+				} catch (UnknownHostException | RemoteException e1) {
 					e1.printStackTrace();
 				}
 				Mensaje m = new Mensaje(this.fileContent, file.getName(),i, noFrame,myIp);
+				log.debug("Cree el mensaje: "+m.getName());
 				try {
+					log.debug("Enviando el mensaje....");
 					Imagen returned = this.stub.renderRequest(m);
 					returned.persistImg("./resultado.png");
 					return new File("./resultado.png").getAbsolutePath();
 				} catch (RemoteException e) {
 					log.error("Error en la conexion con el servidor..");
+					log.error("Error: "+e.getMessage());
 					try {
 						Thread.sleep(5000);
 						log.info("Reintentando enviar "+this.file.getName());

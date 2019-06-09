@@ -59,8 +59,8 @@ public class GUICliente  extends OutputStream implements ActionListener  {
         JLabel labelCombo = new JLabel("Renderizar por:");
         mb.add(labelCombo);
         mb.add(comboBox);
-        cantidad = new JFormattedTextField(new Integer(10));
-        nroFrame = new JFormattedTextField(new Integer(10));
+        cantidad = new JFormattedTextField(new Integer(2));
+        nroFrame = new JFormattedTextField(new Integer(75));
         cantidad.setPreferredSize(new Dimension(100,25));
         nroFrame.setPreferredSize(new Dimension(100,25));
         labelSeg = new JLabel("Segundos");
@@ -103,7 +103,7 @@ public class GUICliente  extends OutputStream implements ActionListener  {
 		 if (e.getSource() == this.btnChooser) {
 			FileFilter filter = new FileNameExtensionFilter("Blender File","blend");
 			this.fc.setFileFilter(filter);
-			this.fc.setCurrentDirectory(new File("./"));
+			this.fc.setCurrentDirectory(new File("./proyectos/"));
 			int returnVal = this.fc.showOpenDialog(null);
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
 	        	this.controlador.setFile(fc.getSelectedFile());

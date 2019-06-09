@@ -9,11 +9,11 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
@@ -51,6 +51,7 @@ public class Servidor implements IClient{
 	
 	public Servidor() {
 		try {
+			MDC.put("log.name", Servidor.class.getSimpleName().toString());
 			readConfigFile();
 			initialConfig();
 			runRMIServer();
@@ -60,6 +61,7 @@ public class Servidor implements IClient{
 	}
 	
 	private void runRMIServer() throws RemoteException {
+		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true"); // renegotiation process is disabled by default.. Without this can't run two clients rmi on same machine like worker and client.
 		log.info("Levantando servidor RMI...");
 		Registry registryCli = LocateRegistry.createRegistry(this.rmiPortCli);
 		Registry registrySv = LocateRegistry.createRegistry(this.rmiPortSv);
@@ -69,10 +71,12 @@ public class Servidor implements IClient{
 		registrySv.rebind("Acciones", remote);
 		registrySv.rebind("server", remoteWorker);
 		registryCli.rebind("client", remoteClient);
-		log.info("Servidor RMI: ON");
+		log.info("Servidor RMI{");
+		log.info("\t Client:"+registryCli.toString());
+		log.info("\t Server:"+registrySv.toString()+"\n\t\t\t}");
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"rawtypes" })
 	private void readConfigFile() {
 		Gson gson = new Gson();
 		Map config;
@@ -111,10 +115,11 @@ public class Servidor implements IClient{
 			// [STEP 2] - ChannelConnection
 			this.queueChannel = this.queueConnection.createChannel();
 			// [STEP 3] - Create the queues
-			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, true, null);
+			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, false, null);
 			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
 			log.info("RabbitMQ inicio correctamente.");
 		} catch (IOException e) {
+			e.printStackTrace();
 			log.error("Error: Compruebe si RabbitMQ esta instalado en su equipo.");
 		} catch (TimeoutException e) {
 			log.error("Error: Time out.");
@@ -126,7 +131,7 @@ public class Servidor implements IClient{
 	    try {
 			this.queueChannel.queueDelete(this.queueTrabajo);
 		    this.queueChannel.queueDelete(this.queueTerminados);
-			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, true, null);
+			this.queueChannel.queueDeclare(this.queueTrabajo, true, false, false, null);
 			this.queueChannel.queueDeclare(this.queueTerminados, true, false, false, null);
 	    } catch (Exception e1) {
 			log.error(e1.getMessage());
@@ -143,28 +148,43 @@ public class Servidor implements IClient{
 
 	@Override
 	public Imagen renderRequest(Mensaje msg) throws RemoteException {
-		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-		log.debug("Current thread launcheds: "+threadSet.toString());
-		BufferedImage respuesta = null;
-		this.listaTrabajos.add(msg.getName()+":"+msg.ipCliente);
-		ThreadServer thServer = new ThreadServer(msg, listaWorkers, respuesta, this.queueChannel, this.queueConnection);
-		Thread th = new Thread(thServer);
-		th.start();
-		while(thServer.getRespuesta() == null) {
-			try {
-				Thread.sleep(5000);
-				log.debug("----"+Thread.currentThread()+"----");
-				log.debug("Lista trabajo: "+this.listaTrabajos.toString());
-				log.debug("Realizando trabajo: "+msg.getName());
-				log.debug("----------------------------------");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		try {
+			//Create a new Channel 
+			Channel chThread;
+			chThread = this.queueConnection.createChannel();
+			BufferedImage respuesta = null;
+			ThreadServer thServer = new ThreadServer(msg, listaWorkers, respuesta, chThread, this.queueConnection, this.listaTrabajos);
+			Thread th = new Thread(thServer);
+			log.debug("-------------------------------------------------------------------------");
+			log.debug("|### "+Thread.currentThread().toString()+" ###");
+			log.debug("|Pedido de trabajo: "+msg.getName());
+			log.debug("-------------------------------------------------------------------------");
+			th.start();
+			while(thServer.getRespuesta() == null) {
+				try {
+					Thread.sleep(400);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
+			log.debug("-------------------------------------------------------------------------");
+			log.debug("|### "+Thread.currentThread().toString()+" ###");
+			log.debug("|Lista trabajo: "+this.listaTrabajos.toString());
+			log.debug("|Acaba de terminar: "+msg.getName());
+			log.debug("|Eliminando... "+msg.getName());
+			log.debug("-------------------------------------------------------------------------");
+			this.listaTrabajos.remove(msg.getName()+":"+msg.ipCliente);
+			th.interrupt();
+			return new Imagen(thServer.getRespuesta());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
 		}
-		this.listaTrabajos.remove(msg.getName()+":"+msg.ipCliente);//Experimental 
-		th.interrupt();
-		return new Imagen(thServer.getRespuesta());
 	}
 
-
+	@Override
+	public String helloFromClient(String clientIp) throws RemoteException {
+		log.info("Se conecto el cliente"+clientIp);
+		return "OK";
+	}
 }

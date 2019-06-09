@@ -17,6 +17,7 @@ import java.rmi.registry.Registry;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
@@ -25,11 +26,13 @@ import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.MessageProperties;
 
@@ -81,6 +84,7 @@ public class Worker {
 	public Worker() {
 		log.info("<-- [STEP 1] - LEYENDO ARCHIVO DE CONFIGURACION -->");
 		readConfigFile();
+		MDC.put("log.name", Worker.class.getSimpleName().toString()+"-"+this.localIp);
 		log.info("<-- [STEP 2] - PREPARANDO EL BANCO DE TRABAJO   -->");
 		prepareWorkplace();
 		log.info("<-- [STEP 3] - REALIZANDO CONEXION RMI		  -->");
@@ -195,31 +199,25 @@ public class Worker {
 */
 
 	private void getWork() {
-		boolean salir;
+		String trabajo = "";
+		Mensaje msg = null;
 		while(true) {
 			try {
-				salir = false;
-				String trabajo = this.stubServer.giveWorkToDo(localIp, this.realizedWorks);//Deberia quedar colgado aca hasta tener un nuevo trabajo
-				while(!salir) {
-					if(this.queueChannel.messageCount(this.queueTrabajo) > 0) {
-						GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
-						Mensaje msg = Mensaje.getMensaje(gr.getBody());
-						this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
-						if(trabajo.split(":")[0].contentEquals(msg.getName())) {
-							persistBlendFile(msg.getBlend(), msg.getName());
-							if(msg.getCantidadSamples() > 0)
-								startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender());
-							else
-								startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender());
-							this.realizedWorks.add(trabajo);
-							Thread.sleep(30000);
-							borrarTemporales();
-							salir = true;
-						}
-					}
+				while(trabajo.length() < 1) {
+					trabajo = this.stubServer.giveWorkToDo(localIp, this.realizedWorks);//Deberia quedar colgado aca hasta tener un nuevo trabajo
 				}
+				log.debug("Nuevo trabajo: "+trabajo);
+				while((msg = obtenerMensaje(trabajo)) == null){Thread.sleep(100);} ;
+				persistBlendFile(msg.getBlend(), msg.getName());
+				if(msg.getCantidadSamples() > 0)
+					startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender(),msg.getIpCliente());
+				else
+					startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender(),msg.getIpCliente());
+				this.realizedWorks.add(trabajo);
+				borrarTemporales();
+				trabajo = "";
 			} catch (Exception e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 				try {
 					Thread.sleep(1000);
 					getWork();
@@ -231,6 +229,28 @@ public class Worker {
 		}
 	}
 	
+	private Mensaje obtenerMensaje(String trabajo) {
+		try {
+			Thread.sleep(50);
+			GetResponse gr;
+			log.info("La cola tiene: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
+			while((gr = this.queueChannel.basicGet(this.queueTrabajo, false)) == null){Thread.sleep(100);}
+			Mensaje msg = Mensaje.getMensaje(gr.getBody());
+			log.info("Mensaje: "+msg.getName()+":"+msg.getIpCliente()+"  |  trabajo: "+trabajo );
+			if((msg.getName()+":"+msg.getIpCliente()).contentEquals(trabajo)) {
+				this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), true, true);
+				Thread.sleep(50);
+				log.info("Encontre el trabajo. Dando NACK. La cola tiene ahora: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
+				return msg;
+			}else {
+				return obtenerMensaje(trabajo);
+			}
+		}catch (Exception e) {
+			log.error(e.getMessage());
+			return null;
+		}
+	}
+
 	private void persistBlendFile(byte[] byteBlend, String name) {
 		File folder = new File(this.myBlendDirectory);
 		if(folder.exists() && folder.isDirectory()) {
@@ -256,12 +276,11 @@ public class Worker {
 			e.printStackTrace();
 		}
 	}
-	private void startRenderSamples(String name, int cantidadSamples, int nroFrame) {
-		// blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
+	private void startRenderSamples(String name, int cantidadSamples, int nroFrame, String ipCliente) {
+		//Formato: blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
 		int i = 1;
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
 		String frames = "-f "+nroFrame;
-		//String fromTo = "-s "+this.MIN_FRAME+" -e "+maxSample+" -a";
 		String useExtension = "-x 1";
 		String pyScript = "-P "+this.myDirectory+"defaultRenderOptions.py";
 		String pyRandScript = "-P "+this.myDirectory+"/randomSeed.py";
@@ -295,7 +314,7 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente).getBytes());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -303,11 +322,11 @@ public class Worker {
 			log.info("==========Termine=========");
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderSamples(name,cantidadSamples,nroFrame);
+			startRenderSamples(name,cantidadSamples,nroFrame,ipCliente);
 		}
 	}
 
-	private void startRenderTime(String name, int timeLimit, int frameToRender) {
+	private void startRenderTime(String name, int timeLimit, int frameToRender, String ipCliente) {
 		// blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
 		
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
@@ -351,7 +370,7 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente).getBytes());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -363,7 +382,7 @@ public class Worker {
 			}
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderSamples(name, timeLimit,frameToRender);
+			startRenderSamples(name, timeLimit, frameToRender, ipCliente);
 		}
 		
 	}
@@ -394,14 +413,16 @@ public class Worker {
 			while (true) {
 				line = input.readLine();
 				if (line == null) break;
-				System.out.println("Line: "+line);
+				if(line.contains("| Rendered ")) {
+					
+				}else {
+					System.out.println("Line: "+line);
+				}
 			}
 			p.waitFor();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

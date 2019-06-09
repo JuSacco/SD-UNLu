@@ -45,7 +45,8 @@ public class Mensaje implements Serializable{
 		this.ipCliente = ipCliente;
 	}
 	
-	public Mensaje(BufferedImage bufferedImg, String name, String from){
+	//Mensaje armado por el worker
+	public Mensaje(BufferedImage bufferedImg, String name, String from, String ipCliente){
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(bufferedImg, "png", outputStream);
@@ -55,6 +56,7 @@ public class Mensaje implements Serializable{
 		}
 		this.name = name;
 		this.from = from;
+		this.ipCliente = ipCliente;
 	}
 	
 	
@@ -121,5 +123,13 @@ public class Mensaje implements Serializable{
 
 	public void setFrameToRender(int frameToRender) {
 		this.frameToRender = frameToRender;
+	}
+
+	public String getIpCliente() {
+		return ipCliente;
+	}
+
+	public void setIpCliente(String ipCliente) {
+		this.ipCliente = ipCliente;
 	}
 }
