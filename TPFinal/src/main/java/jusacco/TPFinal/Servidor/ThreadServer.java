@@ -22,9 +22,11 @@ import jusacco.TPFinal.Cliente.Imagen;
 import jusacco.TPFinal.Servidor.Tools.ImageStacker;
 
 public class ThreadServer implements Runnable {
+	private final int TIME_OUT = 100;
 	Mensaje msg;
 	ArrayList<String> listaWorkers;
 	ArrayList<String> listaTrabajos;
+	Map<String, LocalTime> workersLastPing;
 	Logger log = LoggerFactory.getLogger(ThreadServer.class);
 	Channel queueChannel;
 	Connection queueConnection;
@@ -32,13 +34,14 @@ public class ThreadServer implements Runnable {
 	private String queueTerminados = "queueTerminados";
 	volatile BufferedImage respuesta;
 	
-	public ThreadServer(Mensaje msg, ArrayList<String> listaWorkers, BufferedImage respuesta, Channel queueChannel, Connection queueConnection, ArrayList<String> listaTrabajos) {
+	public ThreadServer(Mensaje msg, ArrayList<String> listaWorkers, BufferedImage respuesta, Channel queueChannel, Connection queueConnection, ArrayList<String> listaTrabajos, Map<String, LocalTime> workersLastPing) {
 		this.msg = msg;
 		this.listaWorkers = listaWorkers;
 		this.respuesta = respuesta;
 		this.queueChannel = queueChannel;
 		this.queueConnection = queueConnection;
 		this.listaTrabajos = listaTrabajos;
+		this.workersLastPing = workersLastPing;
 	}
 	
 	public BufferedImage getRespuesta() {
@@ -57,12 +60,35 @@ public class ThreadServer implements Runnable {
 	    return result;
 	}
 	
+	private Mensaje obtenerMensaje(Mensaje msgCli) {
+		try {
+			GetResponse gr;
+			while((gr = this.queueChannel.basicGet(this.queueTerminados, false)) == null){Thread.sleep(500);}
+			Mensaje msg = Mensaje.getMensaje(gr.getBody());
+			log.info("Mensaje leido: "+msg.getName()+":"+msg.getIpCliente()+"  |  Buscando trabajo: "+msgCli.getName()+":"+msgCli.ipCliente +" | La cola tiene: "+this.queueChannel.messageCount(this.queueTerminados)+" mensajes");
+			if((msg.getName()+":"+msg.getIpCliente()).contentEquals(msgCli.getName()+":"+msgCli.ipCliente)) {
+				this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
+				this.queueChannel.basicRecover();
+				Thread.sleep(100);
+				log.info("Encontre el mensaje:\n\t\t\t\tFrom:"+msg.from+"\n\t\t\t\tName:"+msg.name+":"+msg.ipCliente+"\n\t\t\t\tNro.Render:"+msg.nroRender+"\n\t\t\tLa cola tiene ahora: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
+				return msg;
+			}else {
+				Thread.sleep(200);
+				this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
+				return obtenerMensaje(msgCli);
+			}
+		}catch (Exception e) {
+			log.error(e.getMessage());
+			return null;
+		}
+	}
+	
 	@Override
 	public void run() {
 		boolean salir = false;
+		ArrayList<String> nodosFaltantes = new ArrayList<String>();
 		ArrayList<BufferedImage> renderedImages = new ArrayList<BufferedImage>();
 		LocalTime initTime = LocalTime.now();
-		int intentos = 0;
 		boolean porSamples = msg.cantidadSamples > 0;
 		if(porSamples)
 			log.info("Trabajando en: "+msg.getName()+" Modalidad: Por samples. Cantidad: "+msg.cantidadSamples+" Samples");
@@ -74,66 +100,40 @@ public class ThreadServer implements Runnable {
 			this.listaTrabajos.add(msg.getName()+":"+msg.ipCliente);
 			//For obtain DeliveryTag
 			GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
-			GetResponse grMsg;
 			this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
 			if(porSamples) {//Entonces cada worker hace X cantidad de samples
 				Map<String,Integer> workers = new HashMap<String,Integer>();
 				ArrayList<String> finishedWorkers = new ArrayList<String>();
 				while(!salir) {
 					try {
-						//For obtain DeliveryTag
-						if(this.queueChannel.messageCount(this.queueTerminados) > 0) {
-							while((grMsg = this.queueChannel.basicGet(this.queueTerminados, false)) == null) {Thread.sleep(100);}
-							byte[] data = grMsg.getBody();
-				    		Mensaje m = Mensaje.getMensaje(data);
-				    		if(m.getName().contentEquals(msg.getName()) && m.getIpCliente().contentEquals(msg.getIpCliente())) {
-								this.queueChannel.basicAck(grMsg.getEnvelope().getDeliveryTag(), false);//Doy ack porque es el msg que quiero
-				    			renderedImages.add(Imagen.ByteArrToBuffImg(m.bufferedImg));
-				    			if(workers.containsKey(m.from)) {
-				    				int count = workers.get(m.from);
-				    				workers.put(m.from, count + 1);
-				    			}else {
-				    				workers.put(m.from, 1);
-				    			}
-				    			log.info("---");
-					    		for (String key: workers.keySet()) {
-					    			log.info("Worker: " + key + " Render count:" + workers.get(key) + " @ " + msg.getName()+":"+msg.ipCliente);
-					    		    if((workers.get(key) == msg.cantidadSamples) && !(finishedWorkers.contains(key))) {
-					    		    	finishedWorkers.add(key);
-					    		    }
-					    		}
-				    			log.info("---");
-				    		}
-				    		if(renderedImages.size()> 0){
-				    			log.debug("finishedWorkers.size():"+finishedWorkers.size()+"\t listaWorkers.size()"+listaWorkers.size());
-				    			if(finishedWorkers.size() == listaWorkers.size()) {
-					    			log.debug("renderedImages.size():"+renderedImages.size()+"\t msg.cantidadSamples * finishedWorkers.size()"+msg.cantidadSamples * finishedWorkers.size());
-				    				if (renderedImages.size() == (msg.cantidadSamples * finishedWorkers.size())){
-						    			salir = true;
-										log.info("Termine: "+msg.getName());
-						    			this.queueChannel.basicGet(this.queueTrabajo, true);
-						    			log.debug("Tengo que borrar "+Mensaje.getMensaje(gr.getBody()).name);
-						    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
-				    				}else {
-					    				log.error("Hay workers con problemas... Re-intentando "+intentos+"/20");
-					    				intentos++;
-					    				if (intentos > 19) {
-					    					ArrayList<String> nodosError = diferenciaListas(finishedWorkers, listaWorkers);
-					    					log.error("Parece que hubo un problema con el nodo: "+nodosError.toString());
-					    					for(String str : nodosError) {
-					    						for(String strWrk : listaWorkers) {
-					    							if(strWrk.equals(str)) {
-					    								listaWorkers.remove(str);
-					    								log.error("Eliminando al nodo "+str);
-					    							}
-					    						}
-					    					}
-					    					break;
-					    				}
-				    				}
-				    			}
-				    		}
-						}
+						Mensaje msgTerminado = obtenerMensaje(msg);		
+		    			renderedImages.add(Imagen.ByteArrToBuffImg(msgTerminado.bufferedImg));
+						if(workers.containsKey(msgTerminado.from)) {
+		    				int count = workers.get(msgTerminado.from);
+		    				workers.put(msgTerminado.from, count + 1);
+			    		}else {
+			    			workers.put(msgTerminado.from, 1);
+			    		}
+		    			log.info("---");
+		    			log.info("Worker: " + msgTerminado.from + " Render count:" + workers.get(msgTerminado.from) + " @ " + msg.getName()+":"+msg.ipCliente);
+		    			if((workers.get(msgTerminado.from) >= msg.cantidadSamples) && !(finishedWorkers.contains(msgTerminado.from))) {
+		    		    	finishedWorkers.add(msgTerminado.from);
+		    		    }
+		    			log.info("---");
+		    			log.debug("Cantidad workers que finalizaron: "+finishedWorkers.size()+"\t\t Cantidad de workers total: "+listaWorkers.size());
+		    			log.debug("Cantidad de imagenes: "+renderedImages.size()+"\t\t Cantidad esperada: "+msg.cantidadSamples * listaWorkers.size());
+					
+	    		    	nodosFaltantes = diferenciaListas(listaWorkers, finishedWorkers);
+						Thread.sleep(1000);
+    					log.debug("Nodos sin terminar: "+nodosFaltantes.toString());
+					
+						if(renderedImages.size()> 0){
+		    				if (nodosFaltantes.size() == 0){
+				    			salir = true;
+								log.info("###Termine: "+msg.getName()+"###");
+				    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
+		    				}
+			    		}
 					}catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -155,10 +155,9 @@ public class ThreadServer implements Runnable {
 				}
 			}
 			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(),false);//No esta borrando el trabajo
-			log.info("Cantidad de imagenes:\t"+renderedImages.size());
+			log.info("Cantidad de imagenes procesadas:\t\t"+renderedImages.size());
 			this.respuesta = ImageStacker.aplicarFiltroStack(renderedImages);
-			log.info("endTime aplicarFilto:\t"+LocalTime.now().toString());
-		    log.info("Delta time aplicarFilto:\t"+Duration.between(initTime, LocalTime.now()));
+		    log.info("Tiempo tardado:\t\t"+Duration.between(initTime, LocalTime.now()).toMinutes()+" minutos.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

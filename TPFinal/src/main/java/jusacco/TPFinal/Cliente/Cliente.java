@@ -22,32 +22,61 @@ import jusacco.TPFinal.Servidor.IClient;
 import jusacco.TPFinal.Servidor.Mensaje;
 
 public class Cliente{
+	private final int MAX_ATTEMPS = 3;
 	static Logger log = LoggerFactory.getLogger(Cliente.class);
 	IClient stub;
 	File file;
 	byte[] fileContent;
 	int tipoRender = 0;
 	private String serverIp;
+	private String serverIpBak;
 	private Integer serverPort;
+	private boolean onBackupSv = false;
 	
 	public Cliente() {
 		readConfigFile();
 		MDC.put("log.name", Cliente.class.getSimpleName().toString());
 	}
 	
-	public void connectRMI(String ip, int port) {
+	public void connectRMI(String ip, int port, int attemps) {
 		Registry clienteRMI;
 		try {
 			clienteRMI = LocateRegistry.getRegistry(ip,port);
 			this.stub = (IClient) clienteRMI.lookup("client");
 		} catch (RemoteException | NotBoundException e) {
-			log.error("No se pudo conectar al servidor.Revise ip/puerto");
-			try {
-				Thread.sleep(5000);
-				log.info("Intentando reconectar...");
-				connectRMI(ip, port);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
+			log.error("No se pudo conectar al servidor.Reintentando en 5 segundos");
+			if(attemps > this.MAX_ATTEMPS) {
+				if(!onBackupSv) {
+					try {
+						attemps = 0;
+						log.info("Parece que el servidor principal esta caído, intentando conectar con el de respaldo...");
+						Thread.sleep(2000);
+						log.info("Intentando reconectar...");
+						this.onBackupSv = true;
+						connectRMI(this.serverIpBak, port, ++attemps);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}else {
+					try {
+						attemps = 0;
+						log.info("Parece que el servidor de respaldo esta caído, intentando conectar con el servidor principal...");
+						Thread.sleep(2000);
+						log.info("Intentando reconectar...");
+						this.onBackupSv = false;
+						connectRMI(this.serverIp, port, ++attemps);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}else {
+				try {
+					Thread.sleep(2000);
+					log.info("Intentando reconectar...");
+					connectRMI(ip, port, ++attemps);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
@@ -63,7 +92,7 @@ public class Cliente{
 		this.tipoRender = tipo;
 	}
 	public String enviarFile(int i, int noFrame) {
-		connectRMI(serverIp, serverPort);
+		connectRMI(serverIp, serverPort, 0);
 		if(this.file != null) {
 			if(this.tipoRender == 0) { //0 = por sample ; 1 = por tiempo
 				log.info("Enviando el archivo: "+this.file.getName());
@@ -128,6 +157,7 @@ public class Cliente{
 			config = gson.fromJson(new FileReader("clienteConfig.json"), Map.class);
 			Map server = (Map) config.get("server");
 			this.serverIp = server.get("ip").toString();
+			this.serverIpBak = server.get("ipBak").toString();
 			this.serverPort = Integer.valueOf(server.get("port").toString());
 		} catch (IOException e) {
 			log.info("Error Archivo Config!");

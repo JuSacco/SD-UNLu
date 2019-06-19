@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Inet4Address;
+import java.net.SocketException;
+import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -75,32 +77,42 @@ public class Worker {
 	//server
 	String serverIp;
 	int serverPort;
-	//Rendering CONST
+	//CONST
 	final int MIN_FRAME = 1;
 	final int MAX_FRAME = 250;
 	private ArrayList<String> realizedWorks = new ArrayList<String>();
+	private boolean onBackupSv;
 	
 	
 	public Worker() {
-		log.info("<-- [STEP 1] - LEYENDO ARCHIVO DE CONFIGURACION -->");
-		readConfigFile();
-		MDC.put("log.name", Worker.class.getSimpleName().toString()+"-"+this.localIp);
-		log.info("<-- [STEP 2] - PREPARANDO EL BANCO DE TRABAJO   -->");
-		prepareWorkplace();
-		log.info("<-- [STEP 3] - REALIZANDO CONEXION RMI		  -->");
-		getRMI();
-		log.info("<-- [STEP 4] - REALIZANDO CONEXION CON RABBITMQ -->");
-		getQueueConn();
-		log.info("<-- [STEP 5] - REVISANDO ARCHIVOS NECESARIOS    -->");
-		if(checkNeededFiles()) {
-			log.info("<-- [STEP 6] - ESPERANDO TRABAJOS		      -->");
-			getWork();
-			log.info("<-- [STEP 7] - QUEDAR OCIOSO			      -->");
-		}else {
-			log.debug("Error inesperado!");
+		while(true) {
+			log.info("<-- [STEP 1] - LEYENDO ARCHIVO DE CONFIGURACION \t\t\t-->");
+			readConfigFile();
+			MDC.put("log.name", Worker.class.getSimpleName().toString()+"-"+this.localIp);
+			log.info("<-- [STEP 2] - PREPARANDO EL BANCO DE TRABAJO \t\t\t-->");
+			prepareWorkplace();
+			log.info("<-- [STEP 3] - REALIZANDO CONEXION RMI \t\t\t-->");
+			getRMI();
+			log.info("<-- [STEP 4] - LANZANDO THREAD ALIVE \t\t\t-->");
+			lanzarThread();
+			log.info("<-- [STEP 5] - REALIZANDO CONEXION CON RABBITMQ -->");
+			getQueueConn();
+			log.info("<-- [STEP 6] - REVISANDO ARCHIVOS NECESARIOS\t-->");
+			if(checkNeededFiles()) {
+				log.info("<-- [STEP 6] - ESPERANDO TRABAJOS\t\t\t-->");
+				getWork();
+			}else {
+				log.debug("Error inesperado!");
+			}
 		}
 	}
 	
+	private void lanzarThread() {
+		WorkerAliveThread alive = new WorkerAliveThread(this.stubServer, this.localIp);
+		Thread tAlive = new Thread(alive);
+		tAlive.start();
+	}
+
 	private void prepareWorkplace() {
 		log.info("Borrando los archivos ya existentes en las carpetas temporales.");
 		borrarTemporales();
@@ -167,79 +179,69 @@ public class Worker {
 			log.error("Error: RabbitMQ Connection Time out.");
 		}
 	}
-/* OLD
-	private void getWork() {
-		boolean salir = false;
-		try {
-			while(!salir) {
-				if(this.queueChannel.messageCount(this.queueTrabajo) > 0) {
-					GetResponse gr = this.queueChannel.basicGet(this.queueTrabajo, false);
-					Mensaje msg = Mensaje.getMensaje(gr.getBody());
-					this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
-					persistBlendFile(msg.getBlend(), msg.getName());
-					if(msg.getCantidadSamples() > 0)
-						startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender());
-					else
-						startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender());
-					salir = true;
-					log.debug("Salio linea 174");
-				}
-			}
-		} catch (Exception e) {
-			//e.printStackTrace();
-			try {
-				Thread.sleep(1000);
-				getWork();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-			
-		}
-	}
-*/
-
+	
 	private void getWork() {
 		String trabajo = "";
 		Mensaje msg = null;
-		while(true) {
+		boolean salir = false;
+		while(!salir) {
 			try {
 				while(trabajo.length() < 1) {
-					trabajo = this.stubServer.giveWorkToDo(localIp, this.realizedWorks);//Deberia quedar colgado aca hasta tener un nuevo trabajo
+					trabajo = this.stubServer.giveWorkToDo(localIp, this.realizedWorks);
+					if(trabajo.contentEquals("1234567890exit")) {
+						log.info("Perdí la conexion con el Backup server, conectando a servidor primario.");
+						salir = true;
+					}
+					if(trabajo.contentEquals("empty")){
+						realizedWorks.clear();
+						trabajo = "";
+					}
+					Thread.sleep(1000);		
 				}
 				log.debug("Nuevo trabajo: "+trabajo);
-				while((msg = obtenerMensaje(trabajo)) == null){Thread.sleep(100);} ;
+				while((msg = obtenerMensaje(trabajo)) == null){Thread.sleep(500);} ;
+				this.realizedWorks.add(trabajo);
 				persistBlendFile(msg.getBlend(), msg.getName());
 				if(msg.getCantidadSamples() > 0)
 					startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender(),msg.getIpCliente());
 				else
 					startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender(),msg.getIpCliente());
-				this.realizedWorks.add(trabajo);
 				borrarTemporales();
 				trabajo = "";
-			} catch (Exception e) {
-				e.printStackTrace();
-				try {
-					Thread.sleep(1000);
-					getWork();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
+				this.stubServer.checkStatus();
 				
+			}catch (Exception e) {
+				try {Thread.sleep(5000);} catch (InterruptedException e1) {}
+				this.stubFtp = null;
+				this.stubServer = null;
+				if(this.onBackupSv) {
+					log.info("Conexion perdida con el servidor backup, conectando con el servidor principal");
+					readConfigFile();//Vuelvo a la config principal
+					getRMI();
+					lanzarThread();
+				}else {
+					log.info("Conexion perdida con el servidor principal, conectando con el servidor backup");
+					reconfigWorker();
+					prepareWorkplace();
+					getRMI();
+					lanzarThread();
+				}
 			}
 		}
 	}
 	
 	private Mensaje obtenerMensaje(String trabajo) {
 		try {
-			Thread.sleep(50);
+			Thread.sleep(200);
 			GetResponse gr;
 			log.info("La cola tiene: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
-			while((gr = this.queueChannel.basicGet(this.queueTrabajo, false)) == null){Thread.sleep(100);}
+			while((gr = this.queueChannel.basicGet(this.queueTrabajo, false)) == null){Thread.sleep(200);}
 			Mensaje msg = Mensaje.getMensaje(gr.getBody());
-			log.info("Mensaje: "+msg.getName()+":"+msg.getIpCliente()+"  |  trabajo: "+trabajo );
+			log.info("Mensaje leido: "+msg.getName()+":"+msg.getIpCliente()+"  |  Buscando trabajo: "+trabajo );
 			if((msg.getName()+":"+msg.getIpCliente()).contentEquals(trabajo)) {
-				this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), true, true);
-				Thread.sleep(50);
+				this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
+				this.queueChannel.basicRecover();
+				Thread.sleep(100);
 				log.info("Encontre el trabajo. Dando NACK. La cola tiene ahora: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
 				return msg;
 			}else {
@@ -295,8 +297,8 @@ public class Worker {
 
 			String cmdRnd = " -b \""+blendToRender+"\" "+pyRandScript;
 			File fRnd = new File (this.myBlenderApp+cmdRnd);//Normalize backslashs and slashs
-			
-			System.out.println("CMD: "+ f.getPath());
+
+
 			ejecutar(f.getPath());
 			//Start render
 			while(i<=cantidadSamples) {
@@ -314,7 +316,8 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente,i).getBytes());
+					Thread.sleep(3000);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -370,7 +373,7 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente,i).getBytes());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -382,7 +385,7 @@ public class Worker {
 			}
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderSamples(name, timeLimit, frameToRender, ipCliente);
+			startRenderTime(name, timeLimit, frameToRender, ipCliente);
 		}
 		
 	}
@@ -462,21 +465,36 @@ public class Worker {
 			log.info("Obteniendo stub...");
 			this.stubFtp = (IFTPManager) clienteRMI.lookup("Acciones"); 
 			this.stubServer = (IWorkerAction) clienteRMI.lookup("server");
-			//DEBUG
-			log.debug(this.localIp);
-			this.stubServer.helloServer(this.localIp);
+			this.stubServer.helloServer(localIp);
 		} catch (RemoteException | NotBoundException e) {
 			log.error("RMI Error: "+e.getMessage());
-			log.info("Re-intentando conectar a "+this.serverIp+":"+this.serverPort);
-			for (int i = 5; i > 0; i--) {
-				try {
-					Thread.sleep(1000);
-					log.info("Re-intentando en..."+i);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
+			if(this.onBackupSv) {
+				log.info("Re-intentando conectar al servidor principal: "+this.serverIp+":"+this.serverPort);
+				for (int i = 5; i > 0; i--) {
+					try {
+						Thread.sleep(1000);
+						log.info("Re-intentando en..."+i);
+					} catch (InterruptedException e1) {
+						log.error(e1.getMessage());
+					}
 				}
+				readConfigFile();//Vuelvo a la config principal
+				this.onBackupSv = false;
+				getRMI();
+			}else {
+				log.info("Re-intentando conectar al servidor backup: "+this.serverIp+":"+this.serverPort);
+				for (int i = 5; i > 0; i--) {
+					try {
+						Thread.sleep(1000);
+						log.info("Re-intentando en..."+i);
+					} catch (InterruptedException e1) {
+						log.error(e1.getMessage());
+					}
+				}
+				reconfigWorker();
+				this.onBackupSv = true;
+				getRMI();
 			}
-			getRMI();
 		}
 	}
 
@@ -487,17 +505,17 @@ public class Worker {
 	private boolean checkNeededFiles() {
 		File fRoot = new File(myDirectory);
 		if (fRoot.isDirectory()) {
-			log.info(fRoot.getAbsolutePath()+" - [Es un directorio]");
+			log.info(fRoot.getAbsolutePath()+" ---->Directorio");
        		File fApp = new File(myDirectory+"\\Blender-app\\");
        		if (fApp.isDirectory()) {
-       			log.info(fApp.getAbsolutePath()+" - [Es un directorio]");
+       			log.info(fApp.getAbsolutePath()+" ---->Directorio");
        			try {
        			    long size = DirectoryTools.getFolderSize(fApp);
        				log.info("Obteniendo tamanio de: "+fApp.getAbsolutePath()+" MB:"+(size/1024));
        				if(size < 30000000) {
        					downloadBlenderApp(fApp.getAbsolutePath());       					
        				}else {
-       					log.info("Tengo el blender en condiciones de funcionar");
+       					log.info("Blender ----> LISTO");
        					return true;
        				}
        			}catch (Exception e) {
@@ -587,7 +605,23 @@ public class Worker {
 			this.myBlendDirectory = this.myDirectory + paths.get("myBlendDir").toString();
 			this.myBlenderApp = this.myDirectory + paths.get("myBlenderApp");
 			this.myRenderedImages = this.myDirectory + paths.get("myFinishedWorks");
+
+			this.onBackupSv = false;
+		} catch (IOException e) {
+			log.info("Error Archivo Config!");
+		} 
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private void reconfigWorker() {
+		Gson gson = new Gson();
+		Map config;
+		try {
+			config = gson.fromJson(new FileReader(this.myDirectory+"workerConfig.json"), Map.class);
+			Map server = (Map) config.get("server");
+			this.serverIp = server.get("ipBak").toString();
 			
+			this.onBackupSv = true;
 		} catch (IOException e) {
 			log.info("Error Archivo Config!");
 		} 

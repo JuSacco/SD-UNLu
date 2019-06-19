@@ -13,7 +13,7 @@ public class Controller{
 	}
 	
 	void connectRMI(String ip, int port) {
-		this.cliente.connectRMI(ip, port);
+		this.cliente.connectRMI(ip, port, 0);
 	}
 	public void setFile(File f) {
 		this.cliente.setFile(f);

@@ -1,8 +1,11 @@
 package jusacco.TPFinal.Servidor;
 
 import java.rmi.RemoteException;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -12,38 +15,44 @@ import org.slf4j.MDC;
 public class WorkerAction implements IWorkerAction{
 	ArrayList<String> listaWorkers;
 	ArrayList<String> listaTrabajos;
+	ArrayList<String> workerToRemove;
+	Map<String,LocalTime> workersLastPing = new HashMap<String,LocalTime>();
 	Logger log = LoggerFactory.getLogger(WorkerAction.class);
 	
-	public WorkerAction(ArrayList<String> listaWorkers, ArrayList<String> listaTrabajos) {
+	public WorkerAction(ArrayList<String> listaWorkers, ArrayList<String> listaTrabajos, Map<String, LocalTime> workersLastPing) {
 		MDC.put("log.name", WorkerAction.class.getSimpleName().toString());
 		this.listaWorkers = listaWorkers;
 		this.listaTrabajos = listaTrabajos;
+		this.workersLastPing = workersLastPing;
 	}
 
 	@Override
 	public void helloServer(String worker) throws RemoteException {
 		synchronized (listaTrabajos) {
-			if(!listaWorkers.contains(worker))
+			if(!listaWorkers.contains(worker)) {
 				this.listaWorkers.add(worker);
-			else
-				log.debug("Ya estaba registrado el worker");
-			log.debug("Se conecto el worker "+worker);
+				log.debug("Registrando nuevo worker: "+worker);
+			}
+		}
+		synchronized (workersLastPing) {
+			workersLastPing.put(worker,LocalTime.now());
 		}
 	}
 
 	@Override
 	public String giveWorkToDo(String worker, ArrayList<String> realizedWorks) throws RemoteException {
 		String result = null;
-		boolean salir = false;
-		while(!salir) {
-	    	result = diferenciaListas(realizedWorks);
-		    if(result.length() > 0)
-		    	salir = true;
+		if(listaTrabajos.size() == 0){
+			return "empty";
 		}
-		log.debug(worker+": realizedWorks"+realizedWorks.toString()+"| listaTrabajos"+listaTrabajos.toString());
-		log.debug(worker+": Delegando tarea["+result+"]");
-		log.debug("Result lenght: "+result.length());
-		return result;
+    	result = diferenciaListas(realizedWorks);
+	    if(result.length() < 1) {
+	    	return "";
+	    }else {
+			log.info(worker+": Trabajos realizados: "+realizedWorks.toString()+" | Trabajos para realizar:"+listaTrabajos.toString());
+			log.info(worker+": Delegando tarea ["+result+"]");
+			return result;
+	    }
 	}
 	
 	public String diferenciaListas(ArrayList<String> realizedWorks) {
@@ -65,5 +74,10 @@ public class WorkerAction implements IWorkerAction{
 	      }
 	    }
 	    return result;
+	}
+
+	@Override
+	public void checkStatus() throws RemoteException {
+		
 	}
 }

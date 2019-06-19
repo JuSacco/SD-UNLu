@@ -4,7 +4,7 @@ import jusacco.TPFinal.Cliente.controller.Controller;
 import jusacco.TPFinal.Cliente.view.*;
 
 public class RunCliente {
-	
+
 	public static void main(String[] args) {
 		Cliente modelo = new Cliente();
 		Controller controlador = new Controller(modelo);

@@ -1,21 +1,21 @@
 {
-  "workers": [
-              "localhost:9010",
-              "localhost:9011",
-              "localhost:9012"
-            ],
+  "server": {
+  			  "ip":"192.168.0.110",
+  			  "ipBak":"192.168.0.108"
+  		},
   "queue": {
   			  "ip":"192.168.0.108",
+  			  "ipBak":"192.168.0.108",
   			  "port":"5672",
   			  "user":"admin",
   			  "pass":"admin"
-  			  },
+  		},
   "rmi": {
-  			 "port":"9000"
-  },
+  			 "portCli":"9000",
+  			 "portSv":"9001"
+  		},
   "ftp":{
   			 "directory" : "\\ftp\\",	
   			 "port" : "2121"
-  }		 
-  	
+  }		
 }

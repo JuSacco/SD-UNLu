@@ -26,7 +26,7 @@ public class Mensaje implements Serializable{
 	int frameToRender = 1;
 	String from;
 	String ipCliente;
-
+	int nroRender;
 	//Mensaje enviado por el cliente
 	public Mensaje(byte[] blend, String name, int cantidadSamples, int frameToRender, String ipCliente){
 		this.blend = blend;
@@ -46,7 +46,7 @@ public class Mensaje implements Serializable{
 	}
 	
 	//Mensaje armado por el worker
-	public Mensaje(BufferedImage bufferedImg, String name, String from, String ipCliente){
+	public Mensaje(BufferedImage bufferedImg, String name, String from, String ipCliente,int nroRender){
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(bufferedImg, "png", outputStream);
@@ -57,6 +57,7 @@ public class Mensaje implements Serializable{
 		this.name = name;
 		this.from = from;
 		this.ipCliente = ipCliente;
+		this.nroRender = nroRender;
 	}
 	
 	
