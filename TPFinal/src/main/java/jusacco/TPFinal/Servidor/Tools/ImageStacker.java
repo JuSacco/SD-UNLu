@@ -95,12 +95,10 @@ public class ImageStacker {
 
 			}
 		}
-		File outputFile = new File("./Imagenes procesadas/render-"+liImg.size()+" stacks-"+LocalTime.now().toString().replace(':', '.')+".png");
+		/*File outputFile = new File("./Imagenes procesadas/render-"+liImg.size()+" stacks-"+LocalTime.now().toString().replace(':', '.')+".png"); //Para guardar el resultado en el servidor
 		try {
 			ImageIO.write(newImage, "png", outputFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) {}*/
 	    return newImage;
 	}
 	

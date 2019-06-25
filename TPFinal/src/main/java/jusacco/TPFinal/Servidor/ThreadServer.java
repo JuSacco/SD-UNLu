@@ -63,14 +63,12 @@ public class ThreadServer implements Runnable {
 	private Mensaje obtenerMensaje(Mensaje msgCli) {
 		try {
 			GetResponse gr;
-			while((gr = this.queueChannel.basicGet(this.queueTerminados, false)) == null){Thread.sleep(500);}
+			while((gr = this.queueChannel.basicGet(this.queueTerminados, false)) == null && !this.listaWorkers.isEmpty()){Thread.sleep(500);}
 			Mensaje msg = Mensaje.getMensaje(gr.getBody());
-			log.info("Mensaje leido: "+msg.getName()+":"+msg.getIpCliente()+"  |  Buscando trabajo: "+msgCli.getName()+":"+msgCli.ipCliente +" | La cola tiene: "+this.queueChannel.messageCount(this.queueTerminados)+" mensajes");
 			if((msg.getName()+":"+msg.getIpCliente()).contentEquals(msgCli.getName()+":"+msgCli.ipCliente)) {
 				this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
 				this.queueChannel.basicRecover();
 				Thread.sleep(100);
-				log.info("Encontre el mensaje:\n\t\t\t\tFrom:"+msg.from+"\n\t\t\t\tName:"+msg.name+":"+msg.ipCliente+"\n\t\t\t\tNro.Render:"+msg.nroRender+"\n\t\t\tLa cola tiene ahora: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
 				return msg;
 			}else {
 				Thread.sleep(200);
@@ -82,6 +80,7 @@ public class ThreadServer implements Runnable {
 			return null;
 		}
 	}
+	
 	
 	@Override
 	public void run() {
@@ -127,15 +126,17 @@ public class ThreadServer implements Runnable {
 						Thread.sleep(1000);
     					log.debug("Nodos sin terminar: "+nodosFaltantes.toString());
 					
-						if(renderedImages.size()> 0){
-		    				if (nodosFaltantes.size() == 0){
-				    			salir = true;
-								log.info("###Termine: "+msg.getName()+"###");
-				    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
-		    				}
-			    		}
+	    				if (nodosFaltantes.size() == 0){
+			    			salir = true;
+							log.info("###Termine: "+msg.getName()+"###");
+			    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
+	    				}
 					}catch (Exception e) {
-						e.printStackTrace();
+						if (nodosFaltantes.size() == 0 || nodosFaltantes == null){
+			    			salir = true;
+							log.info("###Termine: "+msg.getName()+"###");
+			    			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(), false);
+	    				}
 					}
 				}
 			}else {//Cada worker opera X cantidad de tiempo
@@ -147,19 +148,25 @@ public class ThreadServer implements Runnable {
 				int terminados = (int) this.queueChannel.messageCount(this.queueTerminados);
 				synchronized (this.queueConnection) {
 			    	for (int i = 0; i < terminados; i++) {
-			    		byte[] data = this.queueChannel.basicGet(this.queueTerminados, false).getBody();
+			    		byte[] data = this.queueChannel.basicGet(this.queueTerminados, true).getBody();
 			    		Mensaje m = Mensaje.getMensaje(data);
 			    		if(m.name.contentEquals(msg.name))
 			    			renderedImages.add(Imagen.ByteArrToBuffImg(m.bufferedImg));
 					}
 				}
+				log.info("###Termine: "+msg.getName()+"###");
+				this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(),false);
 			}
-			this.queueChannel.basicAck(gr.getEnvelope().getDeliveryTag(),false);//No esta borrando el trabajo
 			log.info("Cantidad de imagenes procesadas:\t\t"+renderedImages.size());
-			this.respuesta = ImageStacker.aplicarFiltroStack(renderedImages);
+			if(renderedImages.size()>0)
+				this.respuesta = ImageStacker.aplicarFiltroStack(renderedImages);
+			else
+				this.respuesta = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
+				
 		    log.info("Tiempo tardado:\t\t"+Duration.between(initTime, LocalTime.now()).toMinutes()+" minutos.");
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("###No se pudo terminar el trabajo.###");
+			this.respuesta = new BufferedImage(20, 20, 0);
 		}
 	}
 }

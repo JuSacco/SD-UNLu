@@ -65,23 +65,27 @@ public class Servidor implements IClient{
 	public Servidor() {
 		try {
 			MDC.put("log.name", Servidor.class.getSimpleName().toString());
+			javaInformation();
 			readConfigFile();
 			initialConfig();
 			runRMIServer();
 			while(true) {
-				//Checkeo si se cayo un nodo
-				for(String str : listaWorkers) {
-					if((int)Duration.between(workersLastPing.get(str), LocalTime.now()).getSeconds() > 70) {
-						synchronized (listaWorkers) {
-							listaWorkers.remove(str);
-							log.error("Eliminando al nodo "+str+". Motivo time-out de "+(int)Duration.between(workersLastPing.get(str), LocalTime.now()).getSeconds()+" segundos.");
+				try {
+					for(String str : listaWorkers) {
+						if((int)Duration.between(workersLastPing.get(str), LocalTime.now()).getSeconds() > 70) {
+							synchronized (listaWorkers) {
+								listaWorkers.remove(str);
+								log.error("Eliminando al nodo "+str+". Motivo time-out de "+(int)Duration.between(workersLastPing.get(str), LocalTime.now()).getSeconds()+" segundos.");
+							}
 						}
 					}
-				}
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}catch(Exception e){
+					
 				}
 			}
 		}catch(RemoteException e){
@@ -137,6 +141,21 @@ public class Servidor implements IClient{
 			e.printStackTrace();
 		}
 	}
+
+	private void javaInformation() {
+		Runtime rt = Runtime.getRuntime();
+		long totalMem = rt.totalMemory();
+		long maxMem = rt.maxMemory();
+		long freeMem = rt.freeMemory();
+		double megs = 1048576.0;
+		System.out.println("<======INFORMACION JAVA======>");
+		System.out.println ("Memoria total:\t\t" + totalMem + " (" + (totalMem/megs) + " MiB)");
+		System.out.println ("Memoria maxima disponible:\t\t" + maxMem + " (" + (maxMem/megs) + " MiB)");
+		System.out.println ("Memoria libre:\t\t" + freeMem + " (" + (freeMem/megs) + " MiB)");
+		System.out.println ("Arquitectura Java:"+ System.getProperty("sun.arch.data.model")+" bits");
+		System.out.println("</=====INFORMACION JAVA=====/>");
+	}
+
 	
 	private void runRMIServer() throws RemoteException {
 		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true"); // renegotiation process is disabled by default.. Without this can't run two clients rmi on same machine like worker and client.
@@ -146,7 +165,7 @@ public class Servidor implements IClient{
 		
 		remoteFtpMan = (IFTPManager) UnicastRemoteObject.exportObject(new FTPManager(this.ftpPort, this.ftp),0);
 		remoteClient = (IClient) UnicastRemoteObject.exportObject(this,0);
-		remoteWorker = (IWorkerAction) UnicastRemoteObject.exportObject(new WorkerAction(this.listaWorkers, this.listaTrabajos, this.workersLastPing),0);
+		remoteWorker = (IWorkerAction) UnicastRemoteObject.exportObject(new WorkerAction(this.listaWorkers, this.listaTrabajos, this.workersLastPing, this.queueChannel, this.queueConnection),0);
 		
 		registrySv.rebind("Acciones", remoteFtpMan);
 		registrySv.rebind("server", remoteWorker);
@@ -201,7 +220,7 @@ public class Servidor implements IClient{
 			// [STEP 3] - Create the queues
 			this.queueChannel.queueDelete(this.queueTrabajo);
 		    this.queueChannel.queueDelete(this.queueTerminados);
-			this.queueChannel.queueDeclare(this.queueTrabajo, false, false, false, null);
+			this.queueChannel.queueDeclare(this.queueTrabajo, false, false, true, null);
 			this.queueChannel.queueDeclare(this.queueTerminados, false, false, true, null);
 			log.info("RabbitMQ inicio correctamente.");
 		} catch (IOException e) {
@@ -245,6 +264,7 @@ public class Servidor implements IClient{
 			log.debug("-------------------------------------------------------------------------");
 			this.listaTrabajos.remove(msg.getName()+":"+msg.ipCliente);
 			th.interrupt();
+			
 			return new Imagen(thServer.getRespuesta());
 		} catch (IOException e) {
 			e.printStackTrace();

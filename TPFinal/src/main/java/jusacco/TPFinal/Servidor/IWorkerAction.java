@@ -7,5 +7,5 @@ import java.util.ArrayList;
 public interface IWorkerAction extends Remote{
 	void helloServer(String worker) throws RemoteException;
 	void checkStatus() throws RemoteException;
-	String giveWorkToDo(String worker, ArrayList<String> realizedWorks) throws RemoteException;
+	Mensaje giveWorkToDo(String worker, ArrayList<String> realizedWorks) throws RemoteException;
 }

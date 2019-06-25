@@ -21,6 +21,9 @@ public class Controller{
 	public void setTipoRender(int tipo) {
 		this.cliente.setTipoRender(tipo);
 	}
+	public void setHighRender(boolean b) {
+		this.cliente.setHighRender(b);
+	}
 	public String enviarFile(int value, int noFrame) {
 		return this.cliente.enviarFile(value, noFrame);
 	}

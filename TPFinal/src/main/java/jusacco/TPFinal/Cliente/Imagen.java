@@ -34,6 +34,10 @@ public class Imagen implements Serializable{
 		this.byteImage = data;
 	}
 	
+	public byte[] getByteImage() {
+		return this.byteImage;
+	}
+	
 	public static BufferedImage getImage(byte[] data) {
 		ByteArrayInputStream bis = new ByteArrayInputStream(data);
 		try {

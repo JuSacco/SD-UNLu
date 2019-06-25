@@ -32,6 +32,7 @@ public class Cliente{
 	private String serverIpBak;
 	private Integer serverPort;
 	private boolean onBackupSv = false;
+	private boolean highEnd = false;
 	
 	public Cliente() {
 		readConfigFile();
@@ -103,11 +104,14 @@ public class Cliente{
 				} catch (UnknownHostException | RemoteException e1) {
 					e1.printStackTrace();
 				}
-				Mensaje m = new Mensaje(this.fileContent, file.getName(),i, noFrame,myIp);
+				Mensaje m = new Mensaje(this.fileContent, file.getName(),i, noFrame,myIp,highEnd);
 				log.debug("Cree el mensaje: "+m.getName());
 				try {
 					log.debug("Enviando el mensaje....");
 					Imagen returned = this.stub.renderRequest(m);
+					if(returned.getByteImage().length < 100) {
+						return "Ha ocurrido un error. Porfavor intentelo denuevo mas tarde";
+					}
 					returned.persistImg("./resultado.png");
 					return new File("./resultado.png").getAbsolutePath();
 				} catch (RemoteException e) {
@@ -129,7 +133,7 @@ public class Cliente{
 				} catch (UnknownHostException e1) {
 					e1.printStackTrace();
 				}
-				Mensaje m = new Mensaje(this.fileContent, i, file.getName(),noFrame,myIp);
+				Mensaje m = new Mensaje(this.fileContent, i, file.getName(),noFrame,myIp,highEnd);
 				try {
 					Imagen returned = this.stub.renderRequest(m);
 					returned.persistImg("./resultado.png");
@@ -162,6 +166,10 @@ public class Cliente{
 		} catch (IOException e) {
 			log.info("Error Archivo Config!");
 		} 
+	}
+
+	public void setHighRender(boolean b) {
+		this.highEnd = b;
 	}
 	
 }

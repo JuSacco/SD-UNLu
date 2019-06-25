@@ -1,7 +1,7 @@
 #Generated file - don't edit (please)
-#Wed Jun 19 03:44:54 ART 2019
+#Tue Jun 25 02:49:25 ART 2019
 ftpserver.user.worker.userpassword=workerpwd
 ftpserver.user.worker.writepermission=true
 ftpserver.user.worker.homedirectory=C\:\\Users\\sacco\\eclipse-workspace\\TPFinal\\ServerData\\\\ftp\\
-ftpserver.user.worker.idletime=0
 ftpserver.user.worker.enableflag=true
+ftpserver.user.worker.idletime=0

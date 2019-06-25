@@ -27,22 +27,32 @@ public class Mensaje implements Serializable{
 	String from;
 	String ipCliente;
 	int nroRender;
+	boolean highEnd;
+	
+	//Mensaje simple solo string de Servidor -> worker
+	public Mensaje(String name) {
+		this.name = name;
+	}
+	
+	
 	//Mensaje enviado por el cliente
-	public Mensaje(byte[] blend, String name, int cantidadSamples, int frameToRender, String ipCliente){
+	public Mensaje(byte[] blend, String name, int cantidadSamples, int frameToRender, String ipCliente, boolean highEnd){
 		this.blend = blend;
 		this.cantidadSamples = cantidadSamples;
 		this.frameToRender = frameToRender;
 		this.name = name;
 		this.ipCliente = ipCliente;
+		this.highEnd = highEnd;
 	}
 	
 	//Mensaje enviado por el cliente
-	public Mensaje(byte[] blend,int tiempoLimite, String name, int frameToRender, String ipCliente){
+	public Mensaje(byte[] blend,int tiempoLimite, String name, int frameToRender, String ipCliente, boolean highEnd){
 		this.blend = blend;
 		this.tiempoLimite = tiempoLimite;
 		this.frameToRender = frameToRender;
 		this.name = name;
 		this.ipCliente = ipCliente;
+		this.highEnd = highEnd;
 	}
 	
 	//Mensaje armado por el worker
@@ -132,5 +142,8 @@ public class Mensaje implements Serializable{
 
 	public void setIpCliente(String ipCliente) {
 		this.ipCliente = ipCliente;
+	}
+	public boolean getHighEnd() {
+		return highEnd;
 	}
 }

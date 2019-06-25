@@ -86,6 +86,7 @@ public class Worker {
 	
 	public Worker() {
 		while(true) {
+			javaInformation();
 			log.info("<-- [STEP 1] - LEYENDO ARCHIVO DE CONFIGURACION \t\t\t-->");
 			readConfigFile();
 			MDC.put("log.name", Worker.class.getSimpleName().toString()+"-"+this.localIp);
@@ -107,6 +108,20 @@ public class Worker {
 		}
 	}
 	
+	private void javaInformation() {
+		Runtime rt = Runtime.getRuntime();
+		long totalMem = rt.totalMemory();
+		long maxMem = rt.maxMemory();
+		long freeMem = rt.freeMemory();
+		double megs = 1048576.0;
+		System.out.println("<======INFORMACION JAVA======>");
+		System.out.println ("Memoria total:\t\t" + totalMem + " (" + (totalMem/megs) + " MiB)");
+		System.out.println ("Memoria maxima disponible:\t\t" + maxMem + " (" + (maxMem/megs) + " MiB)");
+		System.out.println ("Memoria libre:\t\t" + freeMem + " (" + (freeMem/megs) + " MiB)");
+		System.out.println ("Arquitectura Java:"+ System.getProperty("sun.arch.data.model")+" bits");
+		System.out.println("</=====INFORMACION JAVA=====/>");
+	}
+
 	private void lanzarThread() {
 		WorkerAliveThread alive = new WorkerAliveThread(this.stubServer, this.localIp);
 		Thread tAlive = new Thread(alive);
@@ -181,33 +196,31 @@ public class Worker {
 	}
 	
 	private void getWork() {
-		String trabajo = "";
-		Mensaje msg = null;
+		Mensaje trabajo = new Mensaje("");
 		boolean salir = false;
 		while(!salir) {
 			try {
-				while(trabajo.length() < 1) {
+				while(trabajo.getName().length() < 1) {
 					trabajo = this.stubServer.giveWorkToDo(localIp, this.realizedWorks);
-					if(trabajo.contentEquals("1234567890exit")) {
+					if(trabajo.getName().contentEquals("1234567890exit")) {
 						log.info("Perdí la conexion con el Backup server, conectando a servidor primario.");
 						salir = true;
 					}
-					if(trabajo.contentEquals("empty")){
+					if(trabajo.getName().contentEquals("empty")){
 						realizedWorks.clear();
-						trabajo = "";
+						trabajo = new Mensaje("");
 					}
 					Thread.sleep(1000);		
 				}
-				log.debug("Nuevo trabajo: "+trabajo);
-				while((msg = obtenerMensaje(trabajo)) == null){Thread.sleep(500);} ;
-				this.realizedWorks.add(trabajo);
-				persistBlendFile(msg.getBlend(), msg.getName());
-				if(msg.getCantidadSamples() > 0)
-					startRenderSamples(msg.getName(), msg.getCantidadSamples(),msg.getFrameToRender(),msg.getIpCliente());
+				log.debug("Recibi un nuevo trabajo: "+trabajo.getName());
+				this.realizedWorks.add(trabajo.getName()+":"+trabajo.getIpCliente());
+				persistBlendFile(trabajo.getBlend(), trabajo.getName());
+				if(trabajo.getCantidadSamples() > 0)
+					startRenderSamples(trabajo.getName(), trabajo.getCantidadSamples(),trabajo.getFrameToRender(),trabajo.getIpCliente(), trabajo.getHighEnd());
 				else
-					startRenderTime(msg.getName(), msg.getTiempoLimite(),msg.getFrameToRender(),msg.getIpCliente());
+					startRenderTime(trabajo.getName(), trabajo.getTiempoLimite(),trabajo.getFrameToRender(),trabajo.getIpCliente(), trabajo.getHighEnd());
 				borrarTemporales();
-				trabajo = "";
+				trabajo = new Mensaje("");
 				this.stubServer.checkStatus();
 				
 			}catch (Exception e) {
@@ -219,37 +232,16 @@ public class Worker {
 					readConfigFile();//Vuelvo a la config principal
 					getRMI();
 					lanzarThread();
+					log.info("Conectado correctamente. Esperando trabajos.");
 				}else {
 					log.info("Conexion perdida con el servidor principal, conectando con el servidor backup");
 					reconfigWorker();
 					prepareWorkplace();
 					getRMI();
 					lanzarThread();
+					log.info("Conectado correctamente. Esperando trabajos.");
 				}
 			}
-		}
-	}
-	
-	private Mensaje obtenerMensaje(String trabajo) {
-		try {
-			Thread.sleep(200);
-			GetResponse gr;
-			log.info("La cola tiene: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
-			while((gr = this.queueChannel.basicGet(this.queueTrabajo, false)) == null){Thread.sleep(200);}
-			Mensaje msg = Mensaje.getMensaje(gr.getBody());
-			log.info("Mensaje leido: "+msg.getName()+":"+msg.getIpCliente()+"  |  Buscando trabajo: "+trabajo );
-			if((msg.getName()+":"+msg.getIpCliente()).contentEquals(trabajo)) {
-				this.queueChannel.basicNack(gr.getEnvelope().getDeliveryTag(), false, true);
-				this.queueChannel.basicRecover();
-				Thread.sleep(100);
-				log.info("Encontre el trabajo. Dando NACK. La cola tiene ahora: "+this.queueChannel.messageCount(this.queueTrabajo)+" mensajes");
-				return msg;
-			}else {
-				return obtenerMensaje(trabajo);
-			}
-		}catch (Exception e) {
-			log.error(e.getMessage());
-			return null;
 		}
 	}
 
@@ -278,13 +270,17 @@ public class Worker {
 			e.printStackTrace();
 		}
 	}
-	private void startRenderSamples(String name, int cantidadSamples, int nroFrame, String ipCliente) {
+	private void startRenderSamples(String name, int cantidadSamples, int nroFrame, String ipCliente, boolean highEnd) {
 		//Formato: blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
 		int i = 1;
+		String pyScript = "-P "+this.myDirectory+"defaultRenderOptions.py";
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
 		String frames = "-f "+nroFrame;
 		String useExtension = "-x 1";
-		String pyScript = "-P "+this.myDirectory+"defaultRenderOptions.py";
+		if(highEnd) {
+			pyScript = "-P "+this.myDirectory+"highRenderOptions.py";
+			log.info("RENDERIZADO HIGH-END");
+		}
 		String pyRandScript = "-P "+this.myDirectory+"/randomSeed.py";
 		
 		File finishedWorkFolder = new File(this.myRenderedImages);
@@ -316,7 +312,7 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente,i).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente,i-1).getBytes());
 					Thread.sleep(3000);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -325,17 +321,21 @@ public class Worker {
 			log.info("==========Termine=========");
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderSamples(name,cantidadSamples,nroFrame,ipCliente);
+			startRenderSamples(name,cantidadSamples,nroFrame,ipCliente,highEnd);
 		}
 	}
 
-	private void startRenderTime(String name, int timeLimit, int frameToRender, String ipCliente) {
+	private void startRenderTime(String name, int timeLimit, int frameToRender, String ipCliente, boolean highEnd) {
 		// blender -b file_name.blend -x 1 -o //file -F AVI_JPEG -s 001 -e 250 -S scene_name -a
 		
 		String blendToRender = this.myBlendDirectory+"/"+getFiles(this.myBlendDirectory).get(0);
 		String frames = "-f "+frameToRender;
 		String useExtension = "-x 1";
 		String pyScript = "-P "+this.myDirectory+"/defaultRenderOptions.py";
+		if(highEnd) {
+			pyScript = "-P "+this.myDirectory+"highRenderOptions.py";
+			log.info("RENDERIZADO HIGH-END");
+		}
 		String pyRandScript = "-P "+this.myDirectory+"/randomSeed.py";
 		int i = 1;
 		File finishedWorkFolder = new File(this.myRenderedImages);
@@ -373,19 +373,20 @@ public class Worker {
 				try {
 					File imgRendered = new File(finishedWorkFolder.getPath()+"/"+imgTerminadas.get(imgTerminadas.size()-1));
 					BufferedImage image = ImageIO.read(imgRendered);
-					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente,i).getBytes());
+					this.queueChannel.basicPublish("", this.queueTerminados, MessageProperties.PERSISTENT_TEXT_PLAIN, new Mensaje(image,name,this.localIp,ipCliente,i-1).getBytes());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				if(Duration.between(init, LocalTime.now()).getSeconds()+estimatedRenderTime > timeLimit) {
 					termino = true;
 				}else {
-					log.info("Falta :"+(timeLimit - Duration.between(init, LocalTime.now()).getSeconds())+" segundos para terminar.");
+					log.info("Tiempo estimado de renderizado: "+estimatedRenderTime+" segundos.");
+					log.info("Falta:"+(timeLimit - Duration.between(init, LocalTime.now()).getSeconds())+" segundos para terminar.");
 				}
 			}
 		}else {
 			finishedWorkFolder.mkdir();
-			startRenderTime(name, timeLimit, frameToRender, ipCliente);
+			startRenderTime(name, timeLimit, frameToRender, ipCliente,highEnd);
 		}
 		
 	}
